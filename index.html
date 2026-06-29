@@ -160,7 +160,7 @@
     .brand-name {
       display: block;
       font-family: 'Nunito', sans-serif;
-      font-size: clamp(52px, 8vw, 96px);
+      font-size: clamp(3.25rem, 8vw, 6rem);
       font-weight: 900;
       color: white;
       letter-spacing: -2px;
@@ -170,7 +170,7 @@
     .brand-sub {
       display: block;
       font-family: 'Nunito', sans-serif;
-      font-size: clamp(16px, 2.5vw, 28px);
+      font-size: clamp(1rem, 2.5vw, 1.75rem);
       font-weight: 800;
       color: var(--orange);
       letter-spacing: 8px;
@@ -180,7 +180,7 @@
 
     .brand-ar {
       font-family: 'Zain', sans-serif;
-      font-size: clamp(18px, 3vw, 32px);
+      font-size: clamp(1.125rem, 3vw, 2rem);
       font-weight: 900;
       color: rgba(255, 255, 255, 0.45);
       margin-bottom: 20px;
@@ -188,7 +188,7 @@
 
     .tagline-en {
       font-family: 'Nunito', sans-serif;
-      font-size: clamp(14px, 1.8vw, 20px);
+      font-size: clamp(0.875rem, 1.8vw, 1.25rem);
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
       margin-bottom: 4px;
@@ -201,7 +201,7 @@
 
     .tagline-ar {
       font-family: 'Zain', sans-serif;
-      font-size: clamp(13px, 1.6vw, 18px);
+      font-size: clamp(0.8125rem, 1.6vw, 1.125rem);
       font-weight: 700;
       color: rgba(255, 255, 255, 0.65);
       margin-bottom: 18px;
@@ -387,7 +387,7 @@
 
     .stat-num {
       font-family: 'Nunito', sans-serif;
-      font-size: 40px;
+      font-size: 2.5rem;
       font-weight: 900;
       color: var(--orange);
       line-height: 1;
@@ -427,7 +427,7 @@
     }
 
     .section-eyebrow .title {
-      font-size: 22px;
+      font-size: 1.375rem;
       font-weight: 900;
       color: var(--maroon);
     }
@@ -605,13 +605,13 @@
 
     .nav-logo-text {
       font-family: 'Nunito', sans-serif;
-      font-size: 19px;
+      font-size: 1.1875rem;
       font-weight: 900;
       color: var(--maroon);
     }
 
     .nav-logo-icon {
-      font-size: 22px;
+      font-size: 1.375rem;
       color: var(--orange);
     }
 
@@ -648,7 +648,7 @@
     }
 
     .cat-tab i {
-      font-size: 17px;
+      font-size: 1.0625rem;
     }
 
     .cat-tab:hover {
@@ -697,7 +697,7 @@
       border: 1px solid var(--border);
       background: white;
       color: var(--charcoal);
-      font-size: 17px;
+      font-size: 1.0625rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -747,7 +747,7 @@
 
     .cat-name-en {
       font-family: 'Nunito', sans-serif;
-      font-size: clamp(26px, 4vw, 44px);
+      font-size: clamp(1.625rem, 4vw, 2.75rem);
       font-weight: 900;
       color: white;
       line-height: 1;
@@ -755,7 +755,7 @@
 
     .cat-name-ar {
       font-family: 'Zain', sans-serif;
-      font-size: clamp(20px, 3vw, 34px);
+      font-size: clamp(1.25rem, 3vw, 2.125rem);
       font-weight: 900;
       color: rgba(255, 255, 255, 0.7);
       margin-top: 2px;
@@ -1034,7 +1034,7 @@
 
     .footer-logo {
       font-family: 'Nunito', sans-serif;
-      font-size: 28px;
+      font-size: 1.75rem;
       font-weight: 900;
       color: white;
       margin-bottom: 3px;
@@ -1193,7 +1193,7 @@
 
     .modal-box h2 {
       font-family: 'Nunito', sans-serif;
-      font-size: 20px;
+      font-size: 1.25rem;
       font-weight: 900;
       color: var(--maroon);
       margin-bottom: 8px;
@@ -1320,7 +1320,7 @@
     }
 
     .search-input-row i {
-      font-size: 18px;
+      font-size: 1.125rem;
       color: #aaa;
     }
 
@@ -1337,7 +1337,7 @@
     .close-search-btn {
       background: none;
       border: none;
-      font-size: 20px;
+      font-size: 1.25rem;
       color: #aaa;
       padding: 2px;
     }
@@ -1490,7 +1490,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 1.25rem;
       box-shadow: 0 8px 24px rgba(241, 97, 55, 0.35);
       opacity: 0;
       transform: translateY(20px);
@@ -1523,7 +1523,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 1.25rem;
       box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
       transition: all 0.3s ease;
       z-index: 900;
@@ -1585,7 +1585,7 @@
     }
 
     .testimonials-header .title {
-      font-size: 22px;
+      font-size: 1.375rem;
       font-weight: 900;
       color: var(--maroon);
     }
@@ -1734,84 +1734,543 @@
     }
 
     @media (max-width: 768px) {
+      /* General overflow checks */
+      html, body {
+        overflow-x: hidden !important;
+        width: 100%;
+      }
+      
+      * {
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      /* Navbar & Tabs */
+      #sticky-nav {
+        height: 56px !important;
+        max-height: 56px !important;
+        padding: 0 10px !important;
+        gap: 8px !important;
+      }
+      
+      .nav-logo img {
+        height: 32px !important;
+      }
+      
+      .nav-cats {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        gap: 4px !important;
+        padding: 0 !important;
+        align-items: center !important;
+      }
+      
+      .cat-tab {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-width: 60px !important;
+        max-width: 60px !important;
+        width: 60px !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        padding: 2px 4px !important;
+        gap: 1px !important;
+        flex-shrink: 0 !important;
+        box-sizing: border-box !important;
+      }
+      
+      .cat-tab i {
+        font-size: 18px !important;
+        line-height: 1 !important;
+      }
+      
+      .cat-tab span:not(.count-badge) {
+        font-size: 10px !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: block !important;
+        max-width: 100% !important;
+      }
+      
+      .count-badge {
+        top: 2px !important;
+        right: 2px !important;
+      }
+      
+      .nav-actions button {
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        font-size: 1.0625rem !important;
+      }
+
+      /* Hero Section */
       #hero {
-        padding: 80px 22px 56px;
+        padding: 24px 22px !important;
+        min-height: auto !important;
+      }
+      
+      .hero-inner {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+      }
+      
+      .hero-right, .float-card {
+        display: none !important; /* Hide floating cards on screens under 768px */
+      }
+      
+      #hero h1, .brand-ar {
+        font-size: clamp(20px, 6vw, 32px) !important;
+      }
+      
+      .tagline-en, .tagline-ar {
+        font-size: clamp(13px, 4vw, 16px) !important;
+      }
+      
+      .hero-desc, .hero-desc.ar {
+        font-size: clamp(11px, 3.5vw, 13px) !important;
+      }
+      
+      .trust-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+        margin-bottom: 20px !important;
+      }
+      
+      .trust-row span {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        justify-content: center !important;
+      }
+      
+      .hero-ctas {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 8px !important;
+      }
+      
+      .hero-ctas button, .hero-ctas a {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        justify-content: center !important;
+        min-height: 44px !important;
       }
 
+      /* Stats Bar */
+      #stats {
+        padding: 24px 20px !important;
+      }
+      
       .stats-inner {
-        flex-wrap: wrap;
-        gap: 16px;
-        justify-content: center;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+        width: 100% !important;
       }
-
+      
+      .stat {
+        padding: 10px !important;
+      }
+      
+      .stat-num {
+        font-size: 28px !important;
+      }
+      
       .stat-sep {
-        display: none;
+        display: none !important;
       }
 
-      .cat-header {
-        padding: 32px 22px 54px;
-      }
-
-      .menu-grid {
-        padding: 44px 22px 32px;
-      }
-
-      .section-eyebrow,
+      /* Bestsellers Row */
       .bestsellers-wrapper {
-        padding: 0 22px;
+        padding: 0 20px !important;
+      }
+      
+      .bestsellers-scroll {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: flex !important;
+        gap: 14px !important;
+        padding-bottom: 12px !important;
+      }
+      
+      .bs-card {
+        min-width: 200px !important;
+        max-width: 200px !important;
+        width: 200px !important;
+        height: auto !important;
+      }
+      
+      .scroll-arrow {
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
       }
 
-      .footer-grid {
-        grid-template-columns: 1fr;
-        gap: 28px;
+      /* Category Section Headers */
+      .cat-header {
+        padding: 20px !important;
+        clip-path: none !important;
+        margin-bottom: 0 !important;
+      }
+      
+      .cat-header-inner {
+        gap: 12px !important;
+        flex-wrap: wrap !important;
+      }
+      
+      .cat-name-en, .cat-name-ar {
+        font-size: clamp(16px, 5vw, 22px) !important;
+      }
+      
+      .cat-intro, .cat-intro.ar {
+        font-size: clamp(11px, 3.5vw, 13px) !important;
+      }
+      
+      .cat-icon {
+        font-size: 28px !important;
       }
 
-      #footer {
-        padding: 44px 22px 22px;
-      }
-
-      .footer-bottom {
-        flex-direction: column;
-        text-align: center;
-      }
-
+      /* Testimonials */
       #testimonials {
-        padding: 44px 22px;
+        padding: 32px 16px !important;
+      }
+      
+      .testimonials-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+      
+      .testi-card {
+        padding: 18px !important;
       }
 
-      .testimonials-grid {
-        grid-template-columns: 1fr;
+      /* Section eyebrow */
+      .section-eyebrow {
+        padding: 0 16px !important;
+        margin-bottom: 16px !important;
+      }
+
+      /* Bestsellers section */
+      #bestsellers {
+        padding: 32px 0 20px !important;
+      }
+
+      /* Search overlay */
+      #search-overlay {
+        padding-top: 70px !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+        align-items: flex-start !important;
+      }
+      
+      .search-box {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 16px !important;
+      }
+
+      /* Admin bar overflow fix */
+      .admin-bar {
+        width: calc(100% - 32px) !important;
+        max-width: calc(100% - 32px) !important;
+        left: 16px !important;
+        transform: none !important;
+        padding: 10px 14px !important;
+        font-size: 11px !important;
+        gap: 6px !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Floating buttons spacing */
+      #btt {
+        bottom: 16px !important;
+        right: 16px !important;
+      }
+      
+      #wa-btn {
+        bottom: 16px !important;
+        right: 70px !important;
+      }
+
+      /* Toast container */
+      #toast-container {
+        left: 12px !important;
+        bottom: 16px !important;
+        right: 70px !important;
+        max-width: calc(100% - 84px) !important;
+      }
+
+      /* Admin Panel & Edit Modal */
+      .admin-grid {
+        grid-template-columns: 1fr !important;
+      }
+      
+      #edit-modal .modal-box {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 20px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow-y: auto !important;
+      }
+      
+      .image-upload-section {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: 1fr !important;
+      }
+      
+      .input-row, .modal-actions, .form-row {
+        flex-direction: column !important;
+        display: flex !important;
+        gap: 12px !important;
+      }
+      
+      .input-row *, .modal-actions *, .form-row * {
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      
+      #edit-modal .fg {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      
+      #edit-modal .fg label {
+        margin-bottom: 6px !important;
+      }
+      
+      #edit-modal .fg input, #edit-modal .fg textarea {
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Footer */
+      #footer {
+        padding: 30px 16px 20px !important;
+      }
+      
+      .footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+        text-align: center !important;
+      }
+      
+      .footer-brand, .footer-col {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+      }
+      
+      .footer-logo img {
+        margin: 0 auto !important;
+      }
+      
+      .footer-trust {
+        align-items: center !important;
+      }
+      
+      .footer-col ul {
+        align-items: center !important;
+        padding: 0 !important;
+      }
+      
+      .footer-bottom {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        padding-top: 16px !important;
+      }
+      
+      .footer-social {
+        justify-content: center !important;
+      }
+      
+      #footer,
+      #footer p,
+      #footer a,
+      #footer li,
+      #footer span,
+      #footer .trust-item {
+        font-size: 13px !important;
+      }
+
+      /* Touch targets check */
+      .lang-btn {
+        min-height: 44px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      
+      .card-wa-btn {
+        min-height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      
+      #btt, #wa-btn {
+        width: 46px !important;
+        height: 46px !important;
+      }
+      
+      .close-search-btn {
+        width: 44px !important;
+        height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      
+      .exit-btn {
+        min-height: 44px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 6px 16px !important;
+      }
+      
+      #admin-panel .btn-orange, #admin-panel .btn-gray {
+        min-height: 44px !important;
       }
     }
 
     @media (max-width: 640px) {
       .menu-grid {
-        grid-template-columns: 1fr;
-        padding: 36px 14px 28px;
+        grid-template-columns: 1fr !important;
+        padding: 20px 16px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
       }
-
-      .hero-right {
-        grid-template-columns: 1fr;
+      
+      .menu-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
       }
-
-      .float-card-2,
-      .float-card-3 {
-        display: none;
+      
+      .card-img-wrap {
+        height: 180px !important;
       }
-
+      
+      .card-body {
+        padding: 12px !important;
+      }
+      
+      .card-name-en, .card-name-ar {
+        font-size: 14px !important;
+      }
+      
+      .card-desc-en, .card-desc-ar {
+        font-size: 11px !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+      }
+      
+      .card-price {
+        font-size: 12px !important;
+        padding: 4px 10px !important;
+      }
+      
       #hero {
-        padding: 70px 18px 44px;
+        padding: 24px 18px !important;
       }
 
-      .hero-ctas {
-        flex-direction: column;
+      /* Hero badge wrapping on very small screens */
+      .hero-badge {
+        font-size: 11px !important;
+        padding: 6px 14px !important;
+        flex-wrap: wrap !important;
+        text-align: center !important;
+        justify-content: center !important;
       }
 
-      .btn-primary,
-      .btn-outline {
-        justify-content: center;
+      /* Testimonials on 640px */
+      .testi-card {
+        padding: 16px !important;
+      }
+      
+      .testi-text {
+        font-size: 13px !important;
+      }
+
+      /* WhatsApp button narrower */
+      .card-wa-btn {
+        font-size: 11px !important;
+        padding: 6px 10px !important;
+      }
+
+      /* Language toggle repositioning to avoid overlap */
+      .lang-toggle {
+        top: 12px !important;
+        left: 12px !important;
+      }
+      
+      [dir="ltr"] .lang-toggle {
+        right: 12px !important;
+        left: auto !important;
+      }
+
+      /* Menu section scroll margin for sticky nav */
+      .menu-section {
+        scroll-margin-top: 60px !important;
       }
     }
+
+    @media (max-width: 400px) {
+      .cat-tab span:not(.count-badge) {
+        display: none !important;
+      }
+      
+      .cat-tab {
+        min-width: 44px !important;
+        max-width: 44px !important;
+        width: 44px !important;
+      }
+
+      /* Stats: 2x2 grid stays fine, just tighten */
+      .stat-num {
+        font-size: 24px !important;
+      }
+
+      /* Floating buttons: stack vertically if screen is tiny */
+      #btt {
+        width: 42px !important;
+        height: 42px !important;
+        bottom: 14px !important;
+        right: 14px !important;
+      }
+
+      #wa-btn {
+        width: 42px !important;
+        height: 42px !important;
+        bottom: 14px !important;
+        right: 64px !important;
+      }
+    }
+
   </style>
 </head>
 
