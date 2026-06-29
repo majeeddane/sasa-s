@@ -34,24 +34,19 @@
     button { cursor: pointer; font-family: inherit; }
     a { text-decoration: none; color: inherit; }
 
-    /* Language — all elements */
+    /* ===== LANGUAGE SYSTEM ===== */
+    /* Default: Arabic visible, English hidden */
     .lang-ar { display: block; }
     .lang-en { display: none; }
     span.lang-ar { display: inline; }
     span.lang-en { display: none; }
-    /* English mode */
+
+    /* English mode: flip visibility */
     body.lang-en .lang-ar  { display: none !important; }
-    body.lang-en .lang-en  { display: block !important; }
     body.lang-en span.lang-ar { display: none !important; }
     body.lang-en span.lang-en { display: inline !important; }
-    /* Flex containers with lang classes */
-    body.lang-en div.lang-en,
-    body.lang-en nav.lang-en  { display: flex !important; }
-    /* a tags */
-    a.lang-ar  { display: flex; }
-    a.lang-en  { display: none; }
-    body.lang-en a.lang-ar  { display: none !important; }
-    body.lang-en a.lang-en  { display: flex !important; }
+    /* Use revert so flex/grid/block all restore correctly */
+    body.lang-en .lang-en  { display: revert !important; }
 
     /* ===== LANGUAGE TOGGLE ===== */
     .lang-toggle {
@@ -567,20 +562,18 @@
     }
     .hero-wave svg { width: 100%; }
 
-    /* ===== ENTRANCE ANIMATIONS ===== */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    /* ===== ENTRANCE ANIMATIONS (testimonials only) ===== */
     .reveal {
       opacity: 0;
-      transition: opacity 0.6s ease, transform 0.6s ease;
-      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+      transform: translateY(22px);
     }
     .reveal.visible {
       opacity: 1;
       transform: translateY(0);
     }
+    /* Menu cards: always visible, no reveal animation */
+    .menu-card { opacity: 1 !important; transform: none !important; }
 
     /* ===== TESTIMONIALS ===== */
     #testimonials {
@@ -1102,21 +1095,24 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 // LANG
-function setLang(lang){currentLang=lang;localStorage.setItem('sasa_lang',lang);applyLang(lang);}
+function setLang(lang){
+  currentLang = lang;
+  localStorage.setItem('sasa_lang', lang);
+  applyLang(lang);
+}
 function applyLang(lang){
-  const html=document.documentElement,body=document.body,btns=document.querySelectorAll('.lang-btn');
-  if(lang==='en'){
-    html.setAttribute('lang','en');
-    body.setAttribute('dir','ltr');
+  const body = document.body;
+  const btns = document.querySelectorAll('.lang-btn');
+  if(lang === 'en'){
+    document.documentElement.setAttribute('lang','en');
     body.classList.add('lang-en');
-    btns[0].classList.remove('active');
-    btns[1].classList.add('active');
+    if(btns[0]) btns[0].classList.remove('active');
+    if(btns[1]) btns[1].classList.add('active');
   } else {
-    html.setAttribute('lang','ar');
-    body.setAttribute('dir','rtl');
+    document.documentElement.setAttribute('lang','ar');
     body.classList.remove('lang-en');
-    btns[0].classList.add('active');
-    btns[1].classList.remove('active');
+    if(btns[0]) btns[0].classList.add('active');
+    if(btns[1]) btns[1].classList.remove('active');
   }
 }
 
