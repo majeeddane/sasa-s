@@ -73,7 +73,7 @@
       display: none !important;
     }
 
-    /* ===== LANGUAGE TOGGLE ===== */
+    /* ===== LANGUAGE TOGGLE (hero overlay, kept for hero section only) ===== */
     .lang-toggle {
       position: fixed;
       top: 20px;
@@ -86,6 +86,12 @@
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.2);
       gap: 2px;
+      transition: opacity 0.3s ease;
+    }
+
+    .lang-toggle.hidden-by-nav {
+      opacity: 0;
+      pointer-events: none;
     }
 
     [dir="ltr"] .lang-toggle {
@@ -93,7 +99,7 @@
       right: 20px;
     }
 
-    .lang-btn {
+    .lang-toggle .lang-btn {
       padding: 6px 16px;
       border-radius: 24px;
       border: none;
@@ -102,11 +108,66 @@
       font-size: 13px;
       font-weight: 700;
       transition: all 0.25s ease;
+      cursor: pointer;
     }
 
-    .lang-btn.active {
+    .lang-toggle .lang-btn.active {
       background: var(--orange);
       color: white;
+    }
+
+    /* ===== NAV RIGHT GROUP (lang-pill + icon buttons) ===== */
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .lang-pill {
+      display: flex;
+      background: #f0f0f0;
+      border-radius: 20px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .lang-pill .lang-btn {
+      padding: 4px 10px;
+      border-radius: 16px;
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      background: transparent;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .lang-pill .lang-btn.active {
+      background: var(--orange);
+      color: white;
+    }
+
+    .nav-icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid #eee;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--maroon);
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .nav-icon-btn:hover {
+      background: var(--maroon);
+      color: white;
+      border-color: var(--maroon);
     }
 
     /* ===== HERO ===== */
@@ -615,111 +676,90 @@
       color: var(--orange);
     }
 
-    .nav-cats {
+    /* ===== CAT TABS WRAPPER (scrollable) ===== */
+    .cat-tabs-wrapper {
       flex: 1;
-      display: flex;
-      gap: 4px;
       overflow-x: auto;
-      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
-      padding: 4px 0;
+      padding: 6px 4px;
+      min-width: 0;
     }
 
-    .nav-cats::-webkit-scrollbar {
+    .cat-tabs-wrapper::-webkit-scrollbar {
       display: none;
+    }
+
+    .cat-tabs {
+      display: flex;
+      gap: 6px;
+      width: max-content;
     }
 
     .cat-tab {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2px;
-      padding: 6px 12px;
+      gap: 3px;
+      padding: 6px 10px;
+      min-width: 56px;
       border-radius: 10px;
-      border: 1px solid transparent;
+      border: 1.5px solid #eee;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
       white-space: nowrap;
-      transition: all 0.2s ease;
-      background: none;
-      min-width: 60px;
       color: var(--charcoal);
-      font-size: 10px;
-      font-weight: 700;
-      position: relative;
     }
 
     .cat-tab i {
-      font-size: 1.0625rem;
+      font-size: 18px;
     }
 
-    .cat-tab:hover {
-      background: #FFF5F2;
-      border-color: var(--orange);
-      color: var(--orange);
+    .cat-tab .tab-label {
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .cat-tab .tab-count {
+      font-size: 9px;
+      background: #eee;
+      color: #888;
+      border-radius: 10px;
+      padding: 1px 5px;
     }
 
     .cat-tab.active {
-      background: var(--orange);
+      background: #F16137;
+      border-color: #F16137;
       color: white;
-      border-color: var(--orange);
     }
 
-    .count-badge {
-      position: absolute;
-      top: 3px;
-      right: 3px;
-      background: var(--maroon);
-      color: white;
-      font-size: 8px;
-      font-weight: 700;
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .cat-tab.active .count-badge {
+    .cat-tab.active .tab-count {
       background: rgba(255, 255, 255, 0.3);
-    }
-
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      flex-shrink: 0;
-    }
-
-    .nav-actions button {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: white;
-      color: var(--charcoal);
-      font-size: 1.0625rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-    }
-
-    .nav-actions button:hover {
-      background: var(--cream);
-      border-color: var(--orange);
-      color: var(--orange);
+      color: white;
     }
 
     /* ===== MENU SECTIONS ===== */
     .menu-section {
-      scroll-margin-top: 78px;
+      scroll-margin-top: 70px;
     }
 
+    /* Tabbed display: only active section visible */
+    .menu-section {
+      display: none;
+    }
+
+    .menu-section.active-section {
+      display: block;
+    }
+
+    /* ===== CATEGORY HEADER (compact) ===== */
     .cat-header {
-      padding: 44px 48px 72px;
-      position: relative;
-      clip-path: ellipse(100% 88% at 50% 10%);
-      margin-bottom: -36px;
+      padding: 20px 20px 16px;
+      text-align: center;
+      clip-path: none;
+      margin-bottom: 0;
     }
 
     .cat-header-maroon {
@@ -733,46 +773,49 @@
     .cat-header-inner {
       display: flex;
       align-items: center;
-      gap: 18px;
-      margin-bottom: 18px;
-      max-width: 1280px;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 8px;
+      max-width: 700px;
       margin-left: auto;
       margin-right: auto;
     }
 
     .cat-icon {
-      font-size: 44px;
-      color: rgba(255, 255, 255, 0.35);
+      font-size: 32px;
+      color: rgba(255, 255, 255, 0.5);
+      flex-shrink: 0;
     }
 
     .cat-name-en {
       font-family: 'Nunito', sans-serif;
-      font-size: clamp(1.625rem, 4vw, 2.75rem);
+      font-size: 20px;
       font-weight: 900;
       color: white;
       line-height: 1;
+      margin: 4px 0;
     }
 
     .cat-name-ar {
       font-family: 'Zain', sans-serif;
-      font-size: clamp(1.25rem, 3vw, 2.125rem);
+      font-size: 18px;
       font-weight: 900;
-      color: rgba(255, 255, 255, 0.7);
-      margin-top: 2px;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0 0 8px;
     }
 
-    .cat-intro {
-      max-width: 1280px;
-      margin: 0 auto;
-      color: rgba(255, 255, 255, 0.75);
-      font-size: 14px;
-      line-height: 1.7;
-      margin-bottom: 6px;
+    .cat-intro, .cat-intro.ar, .cat-intro-en, .cat-intro-ar {
+      font-size: 13px;
+      max-width: 600px;
+      margin: 0 auto 6px;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.6;
+      opacity: 0.85;
     }
 
-    .cat-intro.ar {
+    .cat-intro.ar, .cat-intro-ar {
       font-family: 'Zain', sans-serif;
-      font-size: 15px;
+      font-size: 14px;
     }
 
     .cat-count {
@@ -785,21 +828,25 @@
       font-size: 12px;
       font-weight: 700;
       color: rgba(255, 255, 255, 0.9);
-      margin-top: 14px;
+      margin-top: 10px;
     }
 
-    /* Menu Grid */
+    /* ===== MENU GRID (auto-fill, centered) ===== */
     .menu-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      padding: 56px 48px 44px;
-      max-width: 1376px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      padding: 20px 16px 32px;
+      max-width: 1140px;
       margin: 0 auto;
+      box-sizing: border-box;
     }
 
-    /* ===== MENU CARD ===== */
+    /* ===== MENU CARD SIZE CONSTRAINTS ===== */
     .menu-card {
+      max-width: 340px;
+      width: 100%;
+      margin: 0 auto;
       background: white;
       border-radius: 20px;
       overflow: hidden;
@@ -817,7 +864,7 @@
     }
 
     .card-img-wrap {
-      height: 200px;
+      height: 160px;
       overflow: hidden;
       position: relative;
       flex-shrink: 0;
@@ -835,13 +882,8 @@
     }
 
     @keyframes shimmer {
-      0% {
-        background-position: -400px 0;
-      }
-
-      100% {
-        background-position: 400px 0;
-      }
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
     }
 
     .img-shimmer {
@@ -904,25 +946,10 @@
       gap: 2px;
     }
 
-    .tag-new {
-      background: var(--orange);
-      color: white;
-    }
-
-    .tag-popular {
-      background: var(--maroon);
-      color: white;
-    }
-
-    .tag-spicy {
-      background: #E53935;
-      color: white;
-    }
-
-    .tag-veg {
-      background: #2E7D32;
-      color: white;
-    }
+    .tag-new { background: var(--orange); color: white; }
+    .tag-popular { background: var(--maroon); color: white; }
+    .tag-spicy { background: #E53935; color: white; }
+    .tag-veg { background: #2E7D32; color: white; }
 
     .card-edit-btn {
       display: none;
@@ -946,7 +973,7 @@
     }
 
     .card-body {
-      padding: 15px;
+      padding: 12px;
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -962,16 +989,15 @@
 
     .card-name-ar {
       font-family: 'Zain', sans-serif;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: #555;
       margin-bottom: 7px;
       direction: rtl;
     }
 
-    .card-desc-en,
-    .card-desc-ar {
-      font-size: 12px;
+    .card-desc-en, .card-desc-ar {
+      font-size: 11px;
       color: #888;
       line-height: 1.5;
       display: -webkit-box;
@@ -983,7 +1009,6 @@
 
     .card-desc-ar {
       font-family: 'Zain', sans-serif;
-      font-size: 13px;
       direction: rtl;
     }
 
@@ -1465,15 +1490,8 @@
     }
 
     @keyframes slideUp {
-      from {
-        transform: translateY(20px);
-        opacity: 0;
-      }
-
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     /* Back to top */
@@ -1532,9 +1550,7 @@
     #wa-btn:hover {
       background: #1da851;
       transform: translateY(-2px);
-    }
-
-    /* ===== HERO WAVE ===== */
+    }    /* ===== HERO WAVE ===== */
     .hero-wave {
       position: absolute;
       bottom: -2px;
@@ -1702,573 +1718,136 @@
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 1024px) {
-      .menu-grid {
-        grid-template-columns: repeat(2, 1fr);
-        padding: 44px 24px 36px;
-      }
-
-      .hero-inner {
-        grid-template-columns: 1fr;
-        gap: 36px;
-      }
-
-      .hero-right {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      .float-card-1,
-      .float-card-2,
-      .float-card-3 {
-        width: 100%;
-        align-self: auto;
-      }
-
-      .footer-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .testimonials-grid {
-        grid-template-columns: 1fr 1fr;
-      }
+      .hero-inner { grid-template-columns: 1fr; gap: 36px; }
+      .hero-right { display: none; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr 1fr; }
     }
 
     @media (max-width: 768px) {
-      /* General overflow checks */
-      html, body {
-        overflow-x: hidden !important;
-        width: 100%;
-      }
-      
-      * {
-        max-width: 100%;
-        box-sizing: border-box;
-      }
+      html, body { overflow-x: hidden !important; width: 100%; }
+      * { max-width: 100%; box-sizing: border-box; }
 
-      /* Navbar & Tabs */
-      #sticky-nav {
-        height: 56px !important;
-        max-height: 56px !important;
-        padding: 0 10px !important;
-        gap: 8px !important;
-      }
-      
-      .nav-logo img {
-        height: 32px !important;
-      }
-      
-      .nav-cats {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        gap: 4px !important;
-        padding: 0 !important;
-        align-items: center !important;
-      }
-      
-      .cat-tab {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        min-width: 60px !important;
-        max-width: 60px !important;
-        width: 60px !important;
-        height: 44px !important;
-        min-height: 44px !important;
-        padding: 2px 4px !important;
-        gap: 1px !important;
-        flex-shrink: 0 !important;
-        box-sizing: border-box !important;
-      }
-      
-      .cat-tab i {
-        font-size: 18px !important;
-        line-height: 1 !important;
-      }
-      
-      .cat-tab span:not(.count-badge) {
-        font-size: 10px !important;
-        line-height: 1 !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        display: block !important;
-        max-width: 100% !important;
-      }
-      
-      .count-badge {
-        top: 2px !important;
-        right: 2px !important;
-      }
-      
-      .nav-actions button {
-        width: 44px !important;
-        height: 44px !important;
-        min-width: 44px !important;
-        min-height: 44px !important;
-        font-size: 1.0625rem !important;
-      }
+      /* Navbar */
+      #sticky-nav { height: 56px !important; padding: 0 8px !important; gap: 4px !important; }
+      .nav-logo img { height: 30px !important; }
+      .cat-tabs-wrapper { padding: 3px 2px !important; }
+      .cat-tab { min-width: 52px !important; max-width: 62px !important; padding: 3px 5px !important; height: 46px !important; font-size: 9px !important; gap: 1px !important; flex-shrink: 0 !important; }
+      .cat-tab i { font-size: 15px !important; }
+      .cat-tab .tab-label { font-size: 8px !important; }
+      .cat-tab .tab-count { font-size: 8px !important; padding: 1px 4px !important; }
+      .nav-icon-btn { width: 32px !important; height: 32px !important; font-size: 0.85rem !important; }
+      .lang-pill .lang-btn { padding: 3px 6px !important; font-size: 11px !important; }
 
-      /* Hero Section */
-      #hero {
-        padding: 24px 22px !important;
-        min-height: auto !important;
-      }
-      
-      .hero-inner {
-        grid-template-columns: 1fr !important;
-        gap: 24px !important;
-      }
-      
-      .hero-right, .float-card {
-        display: none !important; /* Hide floating cards on screens under 768px */
-      }
-      
-      #hero h1, .brand-ar {
-        font-size: clamp(20px, 6vw, 32px) !important;
-      }
-      
-      .tagline-en, .tagline-ar {
-        font-size: clamp(13px, 4vw, 16px) !important;
-      }
-      
-      .hero-desc, .hero-desc.ar {
-        font-size: clamp(11px, 3.5vw, 13px) !important;
-      }
-      
-      .trust-row {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 8px !important;
-        margin-bottom: 20px !important;
-      }
-      
-      .trust-row span {
-        width: 100% !important;
-        box-sizing: border-box !important;
-        justify-content: center !important;
-      }
-      
-      .hero-ctas {
-        flex-direction: column !important;
-        width: 100% !important;
-        gap: 8px !important;
-      }
-      
-      .hero-ctas button, .hero-ctas a {
-        width: 100% !important;
-        box-sizing: border-box !important;
-        justify-content: center !important;
-        min-height: 44px !important;
-      }
+      /* Hero */
+      #hero { padding: 22px 14px !important; min-height: auto !important; }
+      .hero-inner { grid-template-columns: 1fr !important; gap: 18px !important; }
+      .hero-right, .float-card { display: none !important; }
+      #hero h1, .brand-ar { font-size: clamp(18px, 5.5vw, 30px) !important; }
+      .tagline-en, .tagline-ar { font-size: clamp(12px, 4vw, 15px) !important; }
+      .hero-desc, .hero-desc.ar { font-size: clamp(11px, 3.5vw, 13px) !important; }
+      .hero-badge { font-size: 10px !important; padding: 5px 10px !important; flex-wrap: wrap !important; }
+      .trust-row { flex-direction: column !important; gap: 7px !important; margin-bottom: 16px !important; }
+      .trust-row span { width: 100% !important; justify-content: center !important; }
+      .hero-ctas { flex-direction: column !important; width: 100% !important; gap: 8px !important; }
+      .hero-ctas button, .hero-ctas a { width: 100% !important; justify-content: center !important; min-height: 44px !important; }
 
-      /* Stats Bar */
-      #stats {
-        padding: 24px 20px !important;
-      }
-      
-      .stats-inner {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 16px !important;
-        width: 100% !important;
-      }
-      
-      .stat {
-        padding: 10px !important;
-      }
-      
-      .stat-num {
-        font-size: 28px !important;
-      }
-      
-      .stat-sep {
-        display: none !important;
-      }
+      /* Stats */
+      #stats { padding: 18px 14px !important; }
+      .stats-inner { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; width: 100% !important; }
+      .stat-num { font-size: 26px !important; }
+      .stat-sep { display: none !important; }
 
-      /* Bestsellers Row */
-      .bestsellers-wrapper {
-        padding: 0 20px !important;
-      }
-      
-      .bestsellers-scroll {
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        display: flex !important;
-        gap: 14px !important;
-        padding-bottom: 12px !important;
-      }
-      
-      .bs-card {
-        min-width: 200px !important;
-        max-width: 200px !important;
-        width: 200px !important;
-        height: auto !important;
-      }
-      
-      .scroll-arrow {
-        width: 44px !important;
-        height: 44px !important;
-        min-width: 44px !important;
-        min-height: 44px !important;
-      }
+      /* Bestsellers */
+      #bestsellers { padding: 24px 0 14px !important; }
+      .section-eyebrow { padding: 0 12px !important; margin-bottom: 12px !important; }
+      .bestsellers-wrapper { padding: 0 12px !important; }
+      .bs-card { min-width: 185px !important; max-width: 185px !important; }
+      .scroll-arrow { width: 38px !important; height: 38px !important; }
 
-      /* Category Section Headers */
-      .cat-header {
-        padding: 20px !important;
-        clip-path: none !important;
-        margin-bottom: 0 !important;
-      }
-      
-      .cat-header-inner {
-        gap: 12px !important;
-        flex-wrap: wrap !important;
-      }
-      
-      .cat-name-en, .cat-name-ar {
-        font-size: clamp(16px, 5vw, 22px) !important;
-      }
-      
-      .cat-intro, .cat-intro.ar {
-        font-size: clamp(11px, 3.5vw, 13px) !important;
-      }
-      
-      .cat-icon {
-        font-size: 28px !important;
-      }
+      /* Category header */
+      .cat-header { padding: 14px 12px 10px !important; }
+      .cat-icon { font-size: 22px !important; }
+      .cat-name-en { font-size: 16px !important; }
+      .cat-name-ar { font-size: 15px !important; }
+      .cat-intro, .cat-intro.ar, .cat-intro-en, .cat-intro-ar { font-size: 11px !important; }
+
+      /* Menu grid */
+      .menu-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important; gap: 12px !important; padding: 14px 12px 24px !important; }
+      .menu-card { max-width: 100% !important; margin: 0 !important; }
+      .card-img-wrap { height: 140px !important; }
 
       /* Testimonials */
-      #testimonials {
-        padding: 32px 16px !important;
-      }
-      
-      .testimonials-grid {
-        grid-template-columns: 1fr !important;
-        gap: 16px !important;
-      }
-      
-      .testi-card {
-        padding: 18px !important;
-      }
+      #testimonials { padding: 24px 12px !important; }
+      .testimonials-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+      .testi-card { padding: 14px !important; }
+      .testi-text { font-size: 13px !important; }
 
-      /* Section eyebrow */
-      .section-eyebrow {
-        padding: 0 16px !important;
-        margin-bottom: 16px !important;
-      }
+      /* Search */
+      #search-overlay { padding-top: 60px !important; padding-left: 10px !important; padding-right: 10px !important; align-items: flex-start !important; }
+      .search-box { width: 100% !important; max-width: 100% !important; border-radius: 14px !important; }
 
-      /* Bestsellers section */
-      #bestsellers {
-        padding: 32px 0 20px !important;
-      }
+      /* Admin bar */
+      .admin-bar { width: calc(100% - 28px) !important; left: 14px !important; transform: none !important; padding: 8px 12px !important; font-size: 11px !important; gap: 6px !important; flex-wrap: wrap !important; justify-content: center !important; box-sizing: border-box !important; }
 
-      /* Search overlay */
-      #search-overlay {
-        padding-top: 70px !important;
-        padding-left: 12px !important;
-        padding-right: 12px !important;
-        align-items: flex-start !important;
-      }
-      
-      .search-box {
-        width: 100% !important;
-        max-width: 100% !important;
-        border-radius: 16px !important;
-      }
-
-      /* Admin bar overflow fix */
-      .admin-bar {
-        width: calc(100% - 32px) !important;
-        max-width: calc(100% - 32px) !important;
-        left: 16px !important;
-        transform: none !important;
-        padding: 10px 14px !important;
-        font-size: 11px !important;
-        gap: 6px !important;
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        box-sizing: border-box !important;
-      }
-
-      /* Floating buttons spacing */
-      #btt {
-        bottom: 16px !important;
-        right: 16px !important;
-      }
-      
-      #wa-btn {
-        bottom: 16px !important;
-        right: 70px !important;
-      }
-
-      /* Toast container */
-      #toast-container {
-        left: 12px !important;
-        bottom: 16px !important;
-        right: 70px !important;
-        max-width: calc(100% - 84px) !important;
-      }
-
-      /* Admin Panel & Edit Modal */
-      .admin-grid {
-        grid-template-columns: 1fr !important;
-      }
-      
-      #edit-modal .modal-box {
-        width: 100% !important;
-        height: 100% !important;
-        max-width: 100% !important;
-        max-height: 100vh !important;
-        border-radius: 0 !important;
-        margin: 0 !important;
-        padding: 20px !important;
-        box-sizing: border-box !important;
-        display: flex !important;
-        flex-direction: column !important;
-        overflow-y: auto !important;
-      }
-      
-      .image-upload-section {
-        display: flex !important;
-        flex-direction: column !important;
-        grid-template-columns: 1fr !important;
-      }
-      
-      .input-row, .modal-actions, .form-row {
-        flex-direction: column !important;
-        display: flex !important;
-        gap: 12px !important;
-      }
-      
-      .input-row *, .modal-actions *, .form-row * {
-        width: 100% !important;
-        box-sizing: border-box !important;
-      }
-      
-      #edit-modal .fg {
-        display: block !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-      }
-      
-      #edit-modal .fg label {
-        margin-bottom: 6px !important;
-      }
-      
-      #edit-modal .fg input, #edit-modal .fg textarea {
-        width: 100% !important;
-        box-sizing: border-box !important;
-      }
+      /* Edit modal */
+      #edit-modal .modal-box { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100vh !important; border-radius: 0 !important; margin: 0 !important; padding: 16px !important; box-sizing: border-box !important; display: flex !important; flex-direction: column !important; overflow-y: auto !important; }
+      .input-row, .modal-actions, .form-row { flex-direction: column !important; display: flex !important; gap: 10px !important; }
+      .input-row *, .modal-actions *, .form-row * { width: 100% !important; box-sizing: border-box !important; }
+      #edit-modal .fg input, #edit-modal .fg textarea { width: 100% !important; box-sizing: border-box !important; }
 
       /* Footer */
-      #footer {
-        padding: 30px 16px 20px !important;
-      }
-      
-      .footer-grid {
-        grid-template-columns: 1fr !important;
-        gap: 24px !important;
-        text-align: center !important;
-      }
-      
-      .footer-brand, .footer-col {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        text-align: center !important;
-      }
-      
-      .footer-logo img {
-        margin: 0 auto !important;
-      }
-      
-      .footer-trust {
-        align-items: center !important;
-      }
-      
-      .footer-col ul {
-        align-items: center !important;
-        padding: 0 !important;
-      }
-      
-      .footer-bottom {
-        flex-direction: column !important;
-        align-items: center !important;
-        text-align: center !important;
-        padding-top: 16px !important;
-      }
-      
-      .footer-social {
-        justify-content: center !important;
-      }
-      
-      #footer,
-      #footer p,
-      #footer a,
-      #footer li,
-      #footer span,
-      #footer .trust-item {
-        font-size: 13px !important;
-      }
+      #footer { padding: 26px 12px 16px !important; }
+      .footer-grid { grid-template-columns: 1fr !important; gap: 20px !important; text-align: center !important; }
+      .footer-brand, .footer-col { display: flex !important; flex-direction: column !important; align-items: center !important; text-align: center !important; }
+      .footer-logo img { margin: 0 auto !important; }
+      .footer-trust { align-items: center !important; }
+      .footer-col ul { align-items: center !important; padding: 0 !important; }
+      .footer-bottom { flex-direction: column !important; align-items: center !important; text-align: center !important; padding-top: 12px !important; }
+      .footer-social { justify-content: center !important; }
 
-      /* Touch targets check */
-      .lang-btn {
-        min-height: 44px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-      }
-      
-      .card-wa-btn {
-        min-height: 44px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-      }
-      
-      #btt, #wa-btn {
-        width: 46px !important;
-        height: 46px !important;
-      }
-      
-      .close-search-btn {
-        width: 44px !important;
-        height: 44px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-      }
-      
-      .exit-btn {
-        min-height: 44px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 6px 16px !important;
-      }
-      
-      #admin-panel .btn-orange, #admin-panel .btn-gray {
-        min-height: 44px !important;
-      }
+      /* Floating buttons */
+      #btt { bottom: 14px !important; right: 14px !important; width: 44px !important; height: 44px !important; }
+      #wa-btn { bottom: 14px !important; right: 66px !important; width: 44px !important; height: 44px !important; }
+      #toast-container { left: 10px !important; bottom: 14px !important; max-width: 200px !important; }
+
+      /* Touch targets */
+      .card-wa-btn { min-height: 40px !important; }
+      #admin-panel .btn-orange, #admin-panel .btn-gray { min-height: 44px !important; }
+      .lang-toggle { top: 10px !important; left: 10px !important; }
+      [dir="ltr"] .lang-toggle { right: 10px !important; left: auto !important; }
     }
 
+    /* 2-column card grid on mobile */
     @media (max-width: 640px) {
-      .menu-grid {
-        grid-template-columns: 1fr !important;
-        padding: 20px 16px !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-      }
-      
-      .menu-card {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-      }
-      
-      .card-img-wrap {
-        height: 180px !important;
-      }
-      
-      .card-body {
-        padding: 12px !important;
-      }
-      
-      .card-name-en, .card-name-ar {
-        font-size: 14px !important;
-      }
-      
-      .card-desc-en, .card-desc-ar {
-        font-size: 11px !important;
-        display: -webkit-box !important;
-        -webkit-line-clamp: 2 !important;
-        -webkit-box-orient: vertical !important;
-        overflow: hidden !important;
-      }
-      
-      .card-price {
-        font-size: 12px !important;
-        padding: 4px 10px !important;
-      }
-      
-      #hero {
-        padding: 24px 18px !important;
-      }
-
-      /* Hero badge wrapping on very small screens */
-      .hero-badge {
-        font-size: 11px !important;
-        padding: 6px 14px !important;
-        flex-wrap: wrap !important;
-        text-align: center !important;
-        justify-content: center !important;
-      }
-
-      /* Testimonials on 640px */
-      .testi-card {
-        padding: 16px !important;
-      }
-      
-      .testi-text {
-        font-size: 13px !important;
-      }
-
-      /* WhatsApp button narrower */
-      .card-wa-btn {
-        font-size: 11px !important;
-        padding: 6px 10px !important;
-      }
-
-      /* Language toggle repositioning to avoid overlap */
-      .lang-toggle {
-        top: 12px !important;
-        left: 12px !important;
-      }
-      
-      [dir="ltr"] .lang-toggle {
-        right: 12px !important;
-        left: auto !important;
-      }
-
-      /* Menu section scroll margin for sticky nav */
-      .menu-section {
-        scroll-margin-top: 60px !important;
-      }
+      .menu-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; padding: 10px !important; width: 100% !important; box-sizing: border-box !important; }
+      .menu-card { max-width: 100% !important; margin: 0 !important; }
+      .card-img-wrap { height: 120px !important; }
+      .card-body { padding: 8px !important; }
+      .card-name-en { font-size: 12px !important; }
+      .card-name-ar { font-size: 11px !important; margin-bottom: 3px !important; }
+      .card-desc-en, .card-desc-ar { display: none !important; }
+      .card-price { font-size: 11px !important; padding: 3px 8px !important; }
+      .meta-badge { font-size: 10px !important; padding: 2px 5px !important; }
+      .card-wa-btn { font-size: 11px !important; padding: 5px 6px !important; gap: 3px !important; }
+      #hero { padding: 18px 12px !important; }
+      .menu-section { scroll-margin-top: 58px !important; }
+      .cat-header { padding: 12px 10px 8px !important; }
     }
 
-    @media (max-width: 400px) {
-      .cat-tab span:not(.count-badge) {
-        display: none !important;
-      }
-      
-      .cat-tab {
-        min-width: 44px !important;
-        max-width: 44px !important;
-        width: 44px !important;
-      }
+    /* Hide share button on narrow screens */
+    @media (max-width: 480px) {
+      .nav-share-btn { display: none !important; }
+      .lang-pill .lang-btn { padding: 3px 6px !important; font-size: 10px !important; }
+    }
 
-      /* Stats: 2x2 grid stays fine, just tighten */
-      .stat-num {
-        font-size: 24px !important;
-      }
-
-      /* Floating buttons: stack vertically if screen is tiny */
-      #btt {
-        width: 42px !important;
-        height: 42px !important;
-        bottom: 14px !important;
-        right: 14px !important;
-      }
-
-      #wa-btn {
-        width: 42px !important;
-        height: 42px !important;
-        bottom: 14px !important;
-        right: 64px !important;
-      }
+    /* 1-column fallback for very small screens */
+    @media (max-width: 360px) {
+      .menu-grid { grid-template-columns: 1fr !important; }
+      .menu-card { max-width: 100% !important; }
+      .cat-tab .tab-label { display: none !important; }
+      .cat-tab { min-width: 42px !important; max-width: 42px !important; width: 42px !important; }
+      .stat-num { font-size: 20px !important; }
     }
 
   </style>
@@ -2442,16 +2021,31 @@
     </div>
   </section>
 
+  <div id="menu-start"></div>
   <!-- ======= STICKY NAV ======= -->
   <nav id="sticky-nav">
     <div class="nav-logo">
       <img src="logo.svg" alt="sasa's Bakery" style="height:38px;width:auto;" />
     </div>
-    <div class="nav-cats" id="catTabs"></div>
-    <div class="nav-actions">
-      <button onclick="openSearch()" title="Search"><i class="ti ti-search"></i></button>
-      <button onclick="shareMenu()" title="Share"><i class="ti ti-share"></i></button>
-      <button onclick="openAdmin()" title="Admin"><i class="ti ti-settings"></i></button>
+    <div class="cat-tabs-wrapper">
+      <div id="catTabs" class="cat-tabs"></div>
+    </div>
+    <div class="nav-right">
+      <!-- Language toggle as compact pill -->
+      <div class="lang-pill">
+        <button class="lang-btn" onclick="setLang('ar')">ع</button>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+      </div>
+      <!-- Action icons -->
+      <button class="nav-icon-btn" onclick="openSearch()" title="Search">
+        <i class="ti ti-search"></i>
+      </button>
+      <button class="nav-icon-btn nav-share-btn" onclick="shareMenu()" title="Share">
+        <i class="ti ti-share"></i>
+      </button>
+      <button class="nav-icon-btn" onclick="openAdmin()" title="Admin">
+        <i class="ti ti-settings"></i>
+      </button>
     </div>
   </nav>
 
@@ -2717,6 +2311,45 @@
       { id: 'ml04', cat: 'meals', nameEn: 'Breakfast Meal', nameAr: 'وجبة الفطور', descEn: 'Simit or focaccia + two dips + fresh juice — start your morning right.', descAr: 'سميت أو فوكاشيا + تغميستان + عصير طازج — ابدأ صباحك بشكل صحيح.', price: 30, img: 'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=400&h=300&fit=crop', tags: ['veg'] },
     ];
 
+        const categoryCounts = {
+      'bread': 7,
+      'dips': 8,
+      'jars': 12,
+      'savory': 8,
+      'sweet': 10,
+      'hot-sandwich': 2,
+      'cold-sandwich': 15,
+      'salads': 3,
+      'juices': 7,
+      'hot-coffee': 7,
+      'cold-coffee': 3,
+      'sauces': 2,
+      'boxes': 11,
+      'meals': 2
+    };
+
+    let activeCategory = 'bread'; // default on load
+
+    function showCategory(cat) {
+      document.querySelectorAll('.menu-section').forEach(s => {
+        s.classList.remove('active-section');
+      });
+      const sec = document.getElementById('section-' + cat);
+      if (sec) sec.classList.add('active-section');
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.cat-tab[data-cat="' + cat + '"]').forEach(t => t.classList.add('active'));
+      activeCategory = cat;
+      const menuStart = document.getElementById('menu-start');
+      if (menuStart) {
+        window.scrollTo({ top: menuStart.offsetTop - 70, behavior: 'smooth' });
+      } else {
+        const container = document.getElementById('menu-container');
+        if (container) {
+          window.scrollTo({ top: container.offsetTop - 70, behavior: 'smooth' });
+        }
+      }
+    }
+
     const categories = [
       { id: 'bread', nameEn: 'Bread', nameAr: 'خبز', icon: 'ti-bread', introEn: 'Our breads are baked fresh every morning using premium European recipes with locally sourced ingredients.', introAr: 'تُخبز أرغفتنا طازجة كل صباح باستخدام وصفات أوروبية فاخرة ومكونات محلية منتقاة.' },
       { id: 'dips', nameEn: 'Dips', nameAr: 'تغميسات', icon: 'ti-bowl', introEn: 'Our artisan dips are crafted fresh daily — bold Mediterranean flavors and local Hijazi classics.', introAr: 'تغميساتنا اليدوية تُحضَّر طازجة يومياً — نكهات متوسطية جريئة وكلاسيكيات حجازية محلية.' },
@@ -2753,8 +2386,8 @@
       renderBestsellers();
       renderCategoryTabs();
       renderMenuSections();
+      showCategory(activeCategory);
       setupScroll();
-      setupObserver();
       setupReveal();
       if (new URLSearchParams(window.location.search).get('admin') === 'true') openAdmin();
       document.addEventListener('keydown', e => {
@@ -2771,17 +2404,26 @@
     }
     function applyLang(lang) {
       const body = document.body;
-      const btns = document.querySelectorAll('.lang-btn');
       if (lang === 'en') {
         document.documentElement.setAttribute('lang', 'en');
         body.classList.add('lang-en');
-        if (btns[0]) btns[0].classList.remove('active');
-        if (btns[1]) btns[1].classList.add('active');
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'en'")) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
       } else {
         document.documentElement.setAttribute('lang', 'ar');
         body.classList.remove('lang-en');
-        if (btns[0]) btns[0].classList.add('active');
-        if (btns[1]) btns[1].classList.remove('active');
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'ar'")) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
       }
     }
 
@@ -2803,13 +2445,15 @@
 
     // CATEGORY TABS
     function renderCategoryTabs() {
-      document.getElementById('catTabs').innerHTML = categories.map((c, i) => {
-        const n = menuData.filter(m => m.cat === c.id).length;
-        return `<button class="cat-tab${i === 0 ? ' active' : ''}" data-cat="${c.id}" onclick="scrollToSection('${c.id}')">
-      <i class="ti ${c.icon}"></i>
-      <span class="lang-ar">${c.nameAr}</span><span class="lang-en">${c.nameEn}</span>
-      <span class="count-badge">${n}</span>
-    </button>`;
+      document.getElementById('catTabs').innerHTML = categories.map((c) => {
+        const count = categoryCounts[c.id] || 0;
+        const activeClass = c.id === activeCategory ? ' active' : '';
+        return `<button class="cat-tab${activeClass}" data-cat="${c.id}" onclick="showCategory('${c.id}')">
+          <i class="ti ${c.icon}"></i>
+          <span class="tab-label lang-ar">${c.nameAr}</span>
+          <span class="tab-label lang-en">${c.nameEn}</span>
+          <span class="tab-count">${count}</span>
+        </button>`;
       }).join('');
     }
 
@@ -2820,7 +2464,8 @@
         const items = menuData.filter(m => m.cat === cat.id);
         if (!items.length) return '';
         const hc = i % 2 === 0 ? 'cat-header-maroon' : 'cat-header-orange';
-        return `<section class="menu-section" id="${cat.id}" data-cat="${cat.id}">
+        const isActive = cat.id === activeCategory ? ' active-section' : '';
+        return `<section class="menu-section${isActive}" id="section-${cat.id}" data-cat="${cat.id}">
       <div class="cat-header ${hc}">
         <div class="cat-header-inner">
           <i class="ti ${cat.icon} cat-icon"></i>
@@ -2829,8 +2474,8 @@
             <h2 class="cat-name-ar lang-ar">${cat.nameAr}</h2>
           </div>
         </div>
-        <p class="cat-intro lang-en">${cat.introEn}</p>
-        <p class="cat-intro ar lang-ar">${cat.introAr}</p>
+        <p class="cat-intro cat-intro-en lang-en">${cat.introEn}</p>
+        <p class="cat-intro cat-intro-ar ar lang-ar">${cat.introAr}</p>
         <div class="cat-count"><i class="ti ti-stack"></i>${items.length} <span class="lang-ar">صنف</span><span class="lang-en">items</span></div>
       </div>
       <div class="menu-grid">${items.map(renderCard).join('')}</div>
@@ -2879,25 +2524,22 @@
 
     // SCROLL
     function setupScroll() {
-      const nav = document.getElementById('sticky-nav'), hero = document.getElementById('hero'), btt = document.getElementById('btt');
+      const nav = document.getElementById('sticky-nav');
+      const hero = document.getElementById('hero');
+      const btt = document.getElementById('btt');
+      const langToggle = document.getElementById('langToggle');
       window.addEventListener('scroll', () => {
-        hero.getBoundingClientRect().bottom < 0 ? nav.classList.add('visible') : nav.classList.remove('visible');
+        if (hero.getBoundingClientRect().bottom < 0) {
+          nav.classList.add('visible');
+          if (langToggle) langToggle.classList.add('hidden-by-nav');
+        } else {
+          nav.classList.remove('visible');
+          if (langToggle) langToggle.classList.remove('hidden-by-nav');
+        }
         window.scrollY > 400 ? btt.classList.add('visible') : btt.classList.remove('visible');
       }, { passive: true });
     }
-    function setupObserver() {
-      const obs = new IntersectionObserver(entries => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            const c = e.target.dataset.cat;
-            document.querySelectorAll('.cat-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === c));
-            const at = document.querySelector(`.cat-tab[data-cat="${c}"]`);
-            if (at) at.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-          }
-        });
-      }, { threshold: 0.15, rootMargin: '-80px 0px 0px 0px' });
-      setTimeout(() => document.querySelectorAll('.menu-section').forEach(s => obs.observe(s)), 200);
-    }
+    function setupObserver() {}
     function setupReveal() {
       const revealObs = new IntersectionObserver(entries => {
         entries.forEach(e => {
@@ -2909,8 +2551,8 @@
       // Re-observe after menu renders
       setTimeout(() => document.querySelectorAll('.menu-card.reveal').forEach(el => revealObs.observe(el)), 400);
     }
-    function scrollToMenu() { document.getElementById('bread').scrollIntoView({ behavior: 'smooth' }); }
-    function scrollToSection(id) { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
+    function scrollToMenu() { showCategory('bread'); }
+    function scrollToSection(id) { showCategory(id); }
     function scrollBS(d) { document.getElementById('bsScroll').scrollBy({ left: d * 300, behavior: 'smooth' }); }
 
     function findItem(name) {
@@ -2920,9 +2562,16 @@
         for (const card of c) {
           const h = card.querySelector('.card-name-en');
           if (h && h.textContent.toLowerCase().includes(name.toLowerCase().split(' ')[0])) {
-            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            card.style.outline = '3px solid var(--orange)';
-            setTimeout(() => { card.style.outline = ''; }, 2500);
+            const section = card.closest('.menu-section');
+            if (section) {
+              const cat = section.dataset.cat;
+              showCategory(cat);
+              setTimeout(() => {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.style.outline = '3px solid var(--orange)';
+                setTimeout(() => { card.style.outline = ''; }, 2500);
+              }, 200);
+            }
             return;
           }
         }
@@ -2952,8 +2601,19 @@
     function jumpTo(id) {
       closeSearch();
       setTimeout(() => {
-        const c = document.querySelector(`[data-item-id="${id}"]`);
-        if (c) { c.scrollIntoView({ behavior: 'smooth', block: 'center' }); c.style.outline = '3px solid var(--orange)'; setTimeout(() => { c.style.outline = ''; }, 2500); }
+        const card = document.querySelector(`[data-item-id="${id}"]`);
+        if (card) {
+          const section = card.closest('.menu-section');
+          if (section) {
+            const cat = section.dataset.cat;
+            showCategory(cat);
+            setTimeout(() => {
+              card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              card.style.outline = '3px solid var(--orange)';
+              setTimeout(() => { card.style.outline = ''; }, 2500);
+            }, 200);
+          }
+        }
       }, 300);
     }
 
