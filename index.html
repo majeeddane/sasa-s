@@ -2111,8 +2111,7 @@
         <div class="footer-social">
           <a href="https://www.instagram.com/bakery.sasas/" target="_blank" rel="noopener"><i
               class="ti ti-brand-instagram"></i></a>
-          <a href="https://www.tiktok.com/@sasas.pretzels" target="_blank" rel="noopener"><i
-              class="ti ti-brand-x"></i></a>
+          <a href="https://www.tiktok.com/@sasas.pretzels" target="_blank" rel="noopener"><i class="ti ti-brand-tiktok"></i></a>
           <a href="https://wa.me/966535262625" target="_blank" rel="noopener"><i class="ti ti-brand-whatsapp"></i></a>
           <a href="https://www.snapchat.com/@sasas.pretzels" target="_blank" rel="noopener"><i
               class="ti ti-brand-snapchat"></i></a>
@@ -2280,6 +2279,8 @@
       { id: 'jc03', cat: 'juices', nameEn: 'KDD Apple', nameAr: 'KDD تفاح', descEn: 'Classic apple juice — sweet, refreshing, and beloved.', descAr: 'عصير التفاح الكلاسيكي — حلو ومنعش ومحبوب.', price: 4, calories: 180, img: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&h=300&fit=crop', tags: ['veg'] },
       { id: 'jc04', cat: 'juices', nameEn: 'KDD Pineapple', nameAr: 'KDD أناناس', descEn: 'Tropical pineapple juice — sweet, fruity, and instantly energizing.', descAr: 'عصير الأناناس الاستوائي — حلو وفاكهي ومنعش على الفور.', price: 4, calories: 190, img: 'https://images.unsplash.com/photo-1589733955941-5eeaf752f6dd?w=400&h=300&fit=crop', tags: ['veg'] },
       { id: 'jc05', cat: 'juices', nameEn: 'KDD Mango', nameAr: 'KDD مانجو', descEn: 'Rich mango juice — smooth, tropical, and naturally sweet.', descAr: 'عصير المانجو الغني — ناعم واستوائي وحلو طبيعياً.', price: 4, calories: 200, img: 'https://images.unsplash.com/photo-1607532941433-304659e8198a?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jc06', cat: 'juices', nameEn: 'KDD Mixed Fruits', nameAr: 'KDD فواكه مشكلة', descEn: 'A vibrant mixed fruits juice — a burst of tropical goodness in every sip.', descAr: 'عصير فواكه مشكل منعش — لمسة استوائية في كل رشفة.', price: 4, calories: 185, img: 'https://images.unsplash.com/photo-1546173159-315724a31696?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jc07', cat: 'juices', nameEn: 'Water', nameAr: 'ماء', descEn: 'Still or sparkling — pure, refreshing hydration.', descAr: 'عادي أو فوار — ترطيب نقي ومنعش.', price: 2, calories: 0, img: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=300&fit=crop', tags: ['veg'] },
       // HOT COFFEE
       { id: 'hc01', cat: 'hot-coffee', nameEn: 'Espresso', nameAr: 'اسبريسو', descEn: 'A bold and concentrated shot of premium espresso — intense, rich, and aromatic.', descAr: 'شوت قهوة اسبريسو مركّز فاخر — قوي وغني وعطري.', price: 8, calories: 5, img: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&h=300&fit=crop' },
       { id: 'hc02', cat: 'hot-coffee', nameEn: 'Cappuccino', nameAr: 'كابتشينو', descEn: 'Perfectly balanced espresso with velvety steamed milk and a generous foam crown.', descAr: 'اسبريسو متوازن بشكل مثالي مع الحليب المبخر المخملي وتاج من الرغوة الكريمية.', price: 14, calories: 120, img: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop' },
@@ -2311,22 +2312,11 @@
       { id: 'ml04', cat: 'meals', nameEn: 'Breakfast Meal', nameAr: 'وجبة الفطور', descEn: 'Simit or focaccia + two dips + fresh juice — start your morning right.', descAr: 'سميت أو فوكاشيا + تغميستان + عصير طازج — ابدأ صباحك بشكل صحيح.', price: 30, img: 'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=400&h=300&fit=crop', tags: ['veg'] },
     ];
 
-        const categoryCounts = {
-      'bread': 7,
-      'dips': 8,
-      'jars': 12,
-      'savory': 8,
-      'sweet': 10,
-      'hot-sandwich': 2,
-      'cold-sandwich': 15,
-      'salads': 3,
-      'juices': 7,
-      'hot-coffee': 7,
-      'cold-coffee': 3,
-      'sauces': 2,
-      'boxes': 11,
-      'meals': 2
-    };
+        const categoryCounts = {};
+    // Auto-compute from menuData
+    menuData.forEach(item => {
+      categoryCounts[item.cat] = (categoryCounts[item.cat] || 0) + 1;
+    });
 
     let activeCategory = 'bread'; // default on load
 
@@ -2406,6 +2396,8 @@
       const body = document.body;
       if (lang === 'en') {
         document.documentElement.setAttribute('lang', 'en');
+        document.documentElement.setAttribute('dir', 'ltr');
+        body.setAttribute('dir', 'ltr');
         body.classList.add('lang-en');
         document.querySelectorAll('.lang-btn').forEach(btn => {
           if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'en'")) {
@@ -2418,6 +2410,8 @@
         document.documentElement.setAttribute('lang', 'ar');
         body.classList.remove('lang-en');
         document.querySelectorAll('.lang-btn').forEach(btn => {
+        document.documentElement.setAttribute('dir', 'rtl');
+        body.setAttribute('dir', 'rtl');
           if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'ar'")) {
             btn.classList.add('active');
           } else {
