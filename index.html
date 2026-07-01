@@ -2233,4 +2233,1054 @@
         <p><span class="ar">أدخل كلمة المرور للموظفين</span><span class="en">Enter staff password</span></p>
         <div class="login-err" id="loginErr"><span class="ar">كلمة المرور خاطئة</span><span class="en">Wrong
             password</span></div>
-        <input type="password" id="admPass"
+        <input type="password" id="admPass" placeholder="Password" onkeydown="if(event.key==='Enter')adminLogin()">
+        <button class="login-btn" onclick="adminLogin()"><span class="ar">دخول</span><span
+            class="en">Login</span></button>
+        <button class="abtn gh" style="margin:12px auto 0;width:auto" onclick="closeAdmin()"><i
+            class="ti ti-arrow-right"></i> <span class="ar">رجوع للمنيو</span><span class="en">Back to
+            menu</span></button>
+      </div>
+    </div>
+    <div class="adm-dash" id="admDash">
+      <div class="adm-top">
+        <h2><i class="ti ti-settings"></i> <span class="ar">لوحة التحكم</span><span class="en">Admin Panel</span></h2>
+        <div class="adm-top-acts">
+          <button class="abtn out" onclick="resetToDefault()"><i class="ti ti-refresh"></i> <span
+              class="ar">استعادة الافتراضي</span><span class="en">Reset Default</span></button>
+          <button class="abtn out" onclick="adminLogout()"><i class="ti ti-logout"></i> <span
+              class="ar">خروج</span><span class="en">Logout</span></button>
+          <button class="abtn pri" onclick="openEditModal(null)"><i class="ti ti-plus"></i> <span
+              class="ar">إضافة صنف</span><span class="en">Add Item</span></button>
+        </div>
+      </div>
+      <div id="adminFilters" class="adm-filters"></div>
+      <div id="adminGrid" class="adm-grid"></div>
+    </div>
+  </div>
+
+  <!-- نافذة التعديل -->
+  <div id="editModal" class="ed-ov" onclick="if(event.target===this)closeEditModal()">
+    <div class="ed-modal">
+      <div class="ed-hd">
+        <h3><i class="ti ti-edit"></i> <span id="editTitle" class="ar">تعديل الصنف</span><span id="editTitleEn"
+            class="en">Edit Item</span></h3>
+        <button class="ed-x" onclick="closeEditModal()"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="ed-body">
+        <div class="ed-img-sec">
+          <div class="ed-img-prev" id="editImgPreview"><i class="ti ti-photo"></i></div>
+          <div class="ed-img-acts">
+            <label><i class="ti ti-upload"></i> <span class="ar">رفع صورة</span><span class="en">Upload</span><input
+                type="file" accept="image/*" onchange="handleImageUpload(this.files[0])"></label>
+            <label><i class="ti ti-link"></i> <span class="ar">رابط صورة</span><span class="en">Image URL</span><input
+                type="text" id="editImgUrl" placeholder="https://..." oninput="applyImageUrl(this.value)"></label>
+          </div>
+        </div>
+        <div class="ed-fields">
+          <div class="ef"><label><span class="ar">الاسم (عربي)</span><span class="en">Name
+                (Arabic)</span></label><input id="editNameAr" type="text"></div>
+          <div class="ef"><label><span class="ar">الاسم (إنجليزي)</span><span class="en">Name
+                (English)</span></label><input id="editNameEn" type="text"></div>
+          <div class="ef full"><label><span class="ar">الوصف (عربي)</span><span class="en">Description
+                (Arabic)</span></label><textarea id="editDescAr"></textarea></div>
+          <div class="ef full"><label><span class="ar">الوصف (إنجليزي)</span><span class="en">Description
+                (English)</span></label><textarea id="editDescEn"></textarea></div>
+          <div class="ef"><label><span class="ar">السعر (ريال)</span><span class="en">Price
+                (SAR)</span></label><input id="editPrice" type="number" min="0" step="1"></div>
+          <div class="ef"><label><span class="ar">القسم</span><span class="en">Category</span></label><select
+              id="editCat"></select></div>
+          <div class="ef"><label><span class="ar">السعرات</span><span class="en">Calories</span>
+              <span>(اختياري)</span></label><input id="editCal" type="number" min="0"></div>
+          <div class="ef"><label><span class="ar">الوزن (جرام)</span><span class="en">Weight (g)</span>
+              <span>(اختياري)</span></label><input id="editWeight" type="number" min="0"></div>
+          <div class="ef full"><label><span class="ar">التاجات</span><span class="en">Tags</span></label>
+            <div class="ed-tags" id="editTags"></div>
+          </div>
+          <div class="ef full"><label><span class="ar">معرف الصنف (ID)</span><span class="en">Item
+                ID</span></label><input id="editId" type="text" style="font-family:monospace;font-size:.82rem"></div>
+        </div>
+      </div>
+      <div class="ed-ft">
+        <div class="l">
+          <button id="editDelBtn" class="del-btn" onclick="deleteCurrentItem()"><i class="ti ti-trash"></i> <span
+              class="ar">حذف</span><span class="en">Delete</span></button>
+        </div>
+        <div class="r">
+          <button class="cancel-btn" onclick="closeEditModal()"><span class="ar">إلغاء</span><span
+              class="en">Cancel</span></button>
+          <button class="save-btn" onclick="saveEdit()"><i class="ti ti-check"></i> <span class="ar">حفظ</span><span
+              class="en">Save</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- الإشعارات -->
+  <div id="toastContainer" class="toast-c"></div>
+
+  <script>
+    /* ============================================================
+      SUPABASE CONFIG
+    ============================================================ */
+    const SUPABASE_URL = 'https://ucldhnvxmrklszixknne.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjbGRobnZ4bXJrbHN6aXhrbm5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4ODY1MzUsImV4cCI6MjA5ODQ2MjUzNX0.lQ2yQj5lj8Goa8raX2HOgvRbX7b-ZaAUy0bI8qtx-G8';
+    const ADMIN_PASSWORD = 'sasa2024';
+
+    /* ============================================================
+      SUPABASE CLIENT
+    ============================================================ */
+    const sb = {
+      async select(table, filters = '') {
+        const url = `${SUPABASE_URL}/rest/v1/${table}?order=id.asc${filters}`;
+        const res = await fetch(url, {
+          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' }
+        });
+        if (!res.ok) throw new Error(`Select error: ${res.status}`);
+        return res.json();
+      },
+      async upsert(table, data) {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+          body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error(`Upsert error: ${res.status}`);
+        return true;
+      },
+      async update(table, id, data) {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error(`Update error: ${res.status}`);
+        return true;
+      },
+      async remove(table, id) {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+        });
+        if (!res.ok) throw new Error(`Delete error: ${res.status}`);
+        return true;
+      }
+    };
+
+    /* ============================================================
+      DEFAULT MENU DATA
+    ============================================================ */
+    const DEFAULT_MENU_DATA = [
+      { id: 'br01', cat: 'bread', nameEn: 'Simit', nameAr: 'سميت', descEn: 'A golden, sesame-crusted ring — crisp on the outside, soft and airy inside.', descAr: 'مخبوزة ذهبية بطابع تقليدي. قشرة مقرمشة وداخل طري وهش.', price: 5, calories: 127, weight: 60, img: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'br02', cat: 'bread', nameEn: 'Focaccia Bread', nameAr: 'فوكاشيا', descEn: 'Fluffy premium Italian bread infused with olive oil, herbs, and sea salt.', descAr: 'فوكاشيا طري فاخر، منقوع بزيت الزيتون والأعشاب وملح البحر.', price: 5, calories: 120, img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'br03', cat: 'bread', nameEn: 'Seeds Bread', nameAr: 'خبز البذور', descEn: 'A hearty loaf packed with flaxseeds, oats, pumpkin seeds, and sunflower seeds.', descAr: 'غني ومغذٍّ، مليء ببذور الكتان والشوفان وبذور اليقطين وعباد الشمس.', price: 5, calories: 73, img: 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7b?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'br04', cat: 'bread', nameEn: 'Potato Bread', nameAr: 'خبز البطاطا', descEn: 'Soft and fluffy bread made with mashed potatoes, light texture and slightly sweet flavor.', descAr: 'طري وهش، مصنوع من البطاطا المهروسة بنكهة خفيفة ومميزة.', price: 5, calories: 180, img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'br05', cat: 'bread', nameEn: 'Pretzel Classic', nameAr: 'برتزل كلاسيك', descEn: 'A warm and crispy pretzel with perfectly twisted dough. Classic European style.', descAr: 'برتزل دافئ ومقرمش بعجينة ملتوية بشكل مثالي على الطريقة الأوروبية الكلاسيكية.', price: 6, calories: 117, weight: 65, img: 'https://images.unsplash.com/photo-1584736286279-0d85cc5b0937?w=400&h=300&fit=crop', tags: ['veg', 'popular'] },
+      { id: 'br06', cat: 'bread', nameEn: 'Ciabatta', nameAr: 'تشيباتا', descEn: 'Italian bread with a crisp crust and soft airy heart — perfect for sandwiches.', descAr: 'خبز إيطالي بقشرة مقرمشة وقلب طري وهش، مثالي للساندوتشات.', price: 5, calories: 200, img: 'https://images.unsplash.com/photo-1586444248879-bc604bc77f90?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'br07', cat: 'bread', nameEn: 'Savory Rusk', nameAr: 'شابورة مالحة', descEn: 'Crispy, flavorful, and perfect as a light savory snack any time of day.', descAr: 'مقرمشة ولذيذة، مثالية كسناك خفيف مالح في أي وقت.', price: 5, calories: 80, weight: 35, img: 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'dp01', cat: 'dips', nameEn: 'Zaatar Balsamic', nameAr: 'زعتر بلسميك', descEn: "A bold modern blend of za'atar and balsamic vinegar with olive oil and sumac.", descAr: 'مزيج عصري من الزعتر وخل البلسميك مع زيت الزيتون والسماق.', price: 6, calories: 150, weight: 50, img: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'dp02', cat: 'dips', nameEn: 'Labnah Doggat Al Madina', nameAr: 'لبنة دقة المدينة', descEn: 'Creamy labnah blended with Hijazi spices — a local classic reimagined.', descAr: 'لبنة كريمية ممزوجة بتوابل حجازية أصيلة، كلاسيكية محلية بأسلوب جديد.', price: 5, calories: 103, weight: 50, img: 'https://images.unsplash.com/photo-1559561853-08451507cbe7?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'dp03', cat: 'dips', nameEn: 'Tapinade', nameAr: 'تبينادا', descEn: 'French-style olive blend — black olives, artichoke, garlic, olive oil, lemon.', descAr: 'مزيج زيتون لذيذ بلمسة فرنسية — زيتون أسود وأرضي شوكي وثوم وزيت زيتون وليمون.', price: 6, calories: 60, weight: 50, img: 'https://images.unsplash.com/photo-1515443961218-a51367888e4b?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'dp04', cat: 'dips', nameEn: 'Sour Fruit French Cheese', nameAr: 'جبنة فرنسية بالفواكة الحامضة', descEn: 'Citrus fruit pieces, orange juice, olive oil, sea salt, vinegar.', descAr: 'نكهة جريئة ومنعشة — قطع حمضيات، عصير برتقال، زيت زيتون، ملح بحري وخل.', price: 7, calories: 95, weight: 50, img: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'dp05', cat: 'dips', nameEn: 'Cheese with Greens', nameAr: 'جبنة بالأعشاب الخضراء', descEn: 'White cheese, parsley, mint, olive oil, green onions.', descAr: 'قوام كريمي بنكهة عشبية غنية — جبنة بيضاء، بقدونس، نعناع، زيت زيتون وبصل أخضر.', price: 6, calories: 121, weight: 50, img: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a2d4?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'dp06', cat: 'dips', nameEn: 'Feta Garden Spicy Jar', nameAr: 'فيتا جاردن سبايسي (قارورة)', descEn: 'Feta cheese with a spicy kick — feta, chili flakes, garlic, parsley, olive oil.', descAr: 'جبنة فيتا بحدة متوازنة — فيتا، رقائق الفلفل الحار، ثوم، بقدونس وزيت زيتون.', price: 5, calories: 150, weight: 50, img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop', tags: ['veg', 'spicy'] },
+      { id: 'dp07', cat: 'dips', nameEn: 'Feta Bell Pepper', nameAr: 'فيتا ملون', descEn: 'Soft feta blended with roasted bell pepper — colorful, creamy, and satisfying.', descAr: 'فيتا ناعمة ممزوجة بالفلفل الرومي المشوي — ملون، كريمي ومُشبِع.', price: 5, calories: 150, weight: 50, img: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'dp08', cat: 'dips', nameEn: 'Feta Olive', nameAr: 'فيتا زيتون', descEn: 'Creamy feta with green and black olives with oregano.', descAr: 'فيتا كريمية مع قطع زيتون منتقاة Green and black olives with oregano.', price: 5, calories: 140, weight: 50, img: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jr01', cat: 'jars', nameEn: 'Cubes & Herbs', nameAr: 'مكعبات وتوابل', descEn: 'Feta cubes marinated with premium herbs in olive oil — perfect pantry jar.', descAr: 'مكعبات فيتا مع أعشاب فاخرة في زيت الزيتون — القارورة المثالية للمطبخ.', price: 48, weight: 200, img: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jr02', cat: 'jars', nameEn: 'Zaatar Balsamic Jar', nameAr: 'زعتر بلسميك (قارورة)', descEn: "Our signature za'atar balsamic blend, jarred for home enjoyment.", descAr: 'مزيج الزعتر البلسميك المميز في قارورة للاستمتاع في المنزل.', price: 38, weight: 200, img: 'https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jr03', cat: 'jars', nameEn: 'Labnah Doggat Jar', nameAr: 'لبنة دقة (قارورة)', descEn: 'Authentic Hijazi-spiced labnah in a beautiful jar.', descAr: 'لبنة بالتوابل الحجازية الأصيلة في قارورة جميلة — نكهة الحجاز في بيتك.', price: 29, weight: 200, img: 'https://images.unsplash.com/photo-1571805529673-0f56b922b359?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jr04', cat: 'jars', nameEn: 'Tapinade Jar', nameAr: 'تبينادا (قارورة)', descEn: 'French-style olive tapenade in a jar — perfect for entertaining.', descAr: 'تبينادا الزيتون بالأسلوب الفرنسي في قارورة — مثالية للضيافة أو الإهداء.', price: 38, weight: 200, img: 'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jr05', cat: 'jars', nameEn: 'Sour Fruit French Cheese Jar', nameAr: 'فرنسية بالفواكة الحامضة (قارورة)', descEn: 'Bright citrus and French cheese spread in a beautiful jar.', descAr: 'جبنة فرنسية بالحمضيات في قارورة أنيقة.', price: 42, weight: 200, img: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jr06', cat: 'jars', nameEn: 'Cheese with Greens Jar', nameAr: 'جبنة بالأعشاب (قارورة)', descEn: 'Herbaceous white cheese spread jarred fresh.', descAr: 'جبنة بيضاء بالأعشاب الخضراء في قارورة طازجة.', price: 33, weight: 200, img: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jr07', cat: 'jars', nameEn: 'Feta Garden Spicy Jar', nameAr: 'فيتا جاردن سبايسي (قارورة)', descEn: 'Spicy feta garden spread in a 200g jar.', descAr: 'فيتا حارة بالخضار في قارورة ٢٠٠ جرام.', price: 29, weight: 200, img: 'https://images.unsplash.com/photo-1506280754576-f6fa8a873550?w=400&h=300&fit=crop', tags: ['veg', 'spicy'] },
+      { id: 'jr08', cat: 'jars', nameEn: 'Feta Bell Pepper Jar', nameAr: 'فيتا ملون (قارورة)', descEn: 'Colorful feta and bell pepper spread, jarred.', descAr: 'فيتا الفلفل الملون في قارورة جميلة.', price: 29, weight: 200, img: 'https://images.unsplash.com/photo-1517244683847-7456b63c5969?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jr09', cat: 'jars', nameEn: 'Feta Olive Jar', nameAr: 'فيتا زيتون (قارورة)', descEn: 'Mediterranean feta and olive jar — simple, bold, classic.', descAr: 'قارورة فيتا وزيتون متوسطية — بسيطة، جريئة، كلاسيكية.', price: 29, weight: 200, img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jr10', cat: 'jars', nameEn: 'Lozella', nameAr: 'لوزيلا', descEn: 'Roasted hazelnuts and dark chocolate — premium house-made Nutella alternative.', descAr: 'بندق محمص وشوكولاتة داكنة — بديلنا الفاخر المصنوع يدوياً للنوتيلا.', price: 55, weight: 200, img: 'https://images.unsplash.com/photo-1541189993359-7e82c7a58c24?w=400&h=300&fit=crop', tags: ['veg', 'popular'] },
+      { id: 'jr11', cat: 'jars', nameEn: 'Apple Cinnamon Jar', nameAr: 'تفاح وقرفة (قارورة)', descEn: 'Warm apple and cinnamon spread — like autumn in a jar.', descAr: 'مربى التفاح والقرفة الدافئة — كأن الخريف في قارورة.', price: 37, weight: 200, img: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jr12', cat: 'jars', nameEn: 'Dates Cardamom Jar', nameAr: 'تمرة وقشطة وهيل (قارورة)', descEn: 'Rich dates with aromatic cardamom and silky cream.', descAr: 'تمر غني مع هيل عطري وقشطة ناعمة — قارورة حلوة بإلهام سعودي.', price: 29, weight: 200, img: 'https://images.unsplash.com/photo-1605711285791-0219e80e43a3?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sp01', cat: 'savory', nameEn: 'Cheddar', nameAr: 'شيدر', descEn: 'Soft warm pretzel generously filled with creamy melted cheddar cheese.', descAr: 'برتزل دافئ وطري محشو بسخاء بجبنة شيدر كريمية ذائبة.', price: 7, calories: 150, img: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sp02', cat: 'savory', nameEn: 'Jalapeño Cheddar', nameAr: 'شيدر هالبينو', descEn: 'A zesty blend of creamy cheddar and spicy jalapeños.', descAr: 'مزيج جريء من الشيدر الكريمي والهالبينو الحار — لعشاق الحدة.', price: 7, calories: 90, img: 'https://images.unsplash.com/photo-1553909489-cd47e0907980?w=400&h=300&fit=crop', tags: ['veg', 'spicy'] },
+      { id: 'sp03', cat: 'savory', nameEn: 'Feta Olive', nameAr: 'فيتا زيتون', descEn: 'Tasty combination of creamy feta cheese and briny olives.', descAr: 'توليفة شهية من الفيتا الكريمية والزيتون المالح في برتزل مثالي.', price: 6, calories: 140, img: 'https://images.unsplash.com/photo-1584736286279-0d85cc5b0937?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sp04', cat: 'savory', nameEn: 'Feta Zaatar', nameAr: 'فيتا زعتر', descEn: "A flavorful blend of creamy feta cheese and aromatic za'atar spices.", descAr: 'مزيج نكهات من الفيتا الكريمية مع الزعتر العطري المميز.', price: 6, calories: 135, img: 'https://images.unsplash.com/photo-1594221708779-94832f4320d1?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sp05', cat: 'savory', nameEn: 'Feta Spinach', nameAr: 'فيتا سبانخ', descEn: 'A delicious combination of fresh spinach and creamy feta cheese.', descAr: 'توليفة شهية من السبانخ الطازجة والفيتا الكريمية.', price: 5, calories: 165, img: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sp06', cat: 'savory', nameEn: 'Feta Bell Pepper', nameAr: 'فيتا ملون', descEn: 'Crisp colorful bell peppers paired with creamy feta in a warm pretzel.', descAr: 'فلفل رومي ملون مقرمش مع فيتا كريمية في برتزل دافئ.', price: 7, calories: 150, img: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sp07', cat: 'savory', nameEn: 'Feta Garden Spicy', nameAr: 'فيتا جاردن سباي', descEn: 'A vibrant mix of fresh garden vegetables and creamy feta with a zesty kick.', descAr: 'مزيج حيوي من خضروات الحديقة الطازجة والفيتا الكريمية بلمسة حارة.', price: 7, calories: 140, img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop', tags: ['veg', 'spicy'] },
+      { id: 'sp08', cat: 'savory', nameEn: 'Trio', nameAr: 'تريو', descEn: 'A spectacular mix of three premium cheeses — kashkaval, mozzarella, and cheddar.', descAr: 'مزيج ثلاثي من أجود أنواع الجبن — موزاريلا وكشكوان وشيدر في كل قضمة.', price: 8, calories: 160, img: 'https://images.unsplash.com/photo-1600803907087-f56d462fd26b?w=400&h=300&fit=crop', tags: ['veg', 'popular'] },
+      { id: 'sw01', cat: 'sweet', nameEn: 'Pretzel Nutella', nameAr: 'برتزل نوتيلا', descEn: 'A soft warm pretzel filled with rich creamy Nutella.', descAr: 'برتزل طري ودافئ محشو بنوتيلا كريمي غني — التدليل الحلو المثالي.', price: 9, calories: 165, img: 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&h=300&fit=crop', tags: ['veg', 'popular'] },
+      { id: 'sw02', cat: 'sweet', nameEn: 'Pretzel Apple Cinnamon', nameAr: 'برتزل التفاح والقرفة', descEn: 'Soft pretzel with warm apple cinnamon filling.', descAr: 'برتزل طري بحشوة التفاح والقرفة الدافئة — دافئ ومريح ولا يُقاوَم.', price: 9, calories: 90, img: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sw03', cat: 'sweet', nameEn: 'Dates Cardamom and Cream', nameAr: 'برتزل التمر والقشطة', descEn: 'Rich dates blended with aromatic cardamom and smooth cream.', descAr: 'تمر غني مع هيل عطري وقشطة ناعمة — معجنات بروح سعودية حقيقية.', price: 6, calories: 135, img: 'https://images.unsplash.com/photo-1605711285791-0219e80e43a3?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sw04', cat: 'sweet', nameEn: 'TWIST', nameAr: 'تويست', descEn: 'Soft twisted pastry generously coated with cinnamon sugar.', descAr: 'معجنة ملتوية ناعمة مغطاة بسخاء بسكر القرفة — حلاوة ومثالية.', price: 10, calories: 135, img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sw05', cat: 'sweet', nameEn: 'English Cake', nameAr: 'إنجلش كيك', descEn: 'Classic soft and buttery English pound cake.', descAr: 'كيك إنجليزي كلاسيكي طري وزبداني — الرفيق المثالي للشاي أو القهوة.', price: 7, calories: 270, img: 'https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sw06', cat: 'sweet', nameEn: 'Muffin', nameAr: 'مفن', descEn: 'Soft and fluffy with a velvety crumb.', descAr: 'طري وهش بقوام مخملي — المرافق المثالي لقهوتك المفضلة.', price: 10, calories: 321, img: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sw07', cat: 'sweet', nameEn: 'Waffle', nameAr: 'وافل', descEn: 'Freshly made waffle — crispy golden outside, soft and fluffy inside.', descAr: 'وافل طازج — ذهبي مقرمش من الخارج، طري وهش من الداخل.', price: 8, calories: 180, img: 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sw08', cat: 'sweet', nameEn: 'Pecan Pie', nameAr: 'بيكان باي', descEn: 'Rich buttery pie filled with caramelized pecans.', descAr: 'فطيرة زبدانية غنية محشوة بالبيكان المكرمل — فاخرة وكلاسيكية لا تُنسى.', price: 26, calories: 240, img: 'https://images.unsplash.com/photo-1621955964441-c173e01c135b?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sw09', cat: 'sweet', nameEn: 'Chocolate Cookie', nameAr: 'بسكويت الشوكولاتة', descEn: 'Chewy and soft cookie loaded with rich chocolate chips.', descAr: 'بسكويت طري وقابل للمضغ محمّل بقطع الشوكولاتة الغنية — يُخبز طازجاً يومياً.', price: 10, calories: 280, img: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sw10', cat: 'sweet', nameEn: 'Cookie', nameAr: 'كوكيز', descEn: 'A deliciously sweet, golden and crispy classic cookie.', descAr: 'كوكيز كلاسيكي حلو وذهبي ومقرمش بامتياز.', price: 10, calories: 260, img: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'hs01', cat: 'hot-sandwich', nameEn: 'Chicken Pesto', nameAr: 'ساندوتش دجاج البيستو', descEn: 'Tender grilled chicken with fresh basil pesto on our signature bread.', descAr: 'ساندوتش دجاج البيستو المنزلي — دجاج مشوي طري مع صوص البيستو الطازج على خبزنا المميز.', price: 13, calories: 187, img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=400&h=300&fit=crop', tags: ['popular'] },
+      { id: 'hs02', cat: 'hot-sandwich', nameEn: 'Omelette', nameAr: 'اومليت', descEn: 'A satisfying sandwich with a fluffy omelette, fresh vegetables, and cheese.', descAr: 'ساندوتش مُشبِع بأومليت هش وخضروات طازجة وجبنة على خبز محمص.', price: 9, calories: 175, img: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'cs01', cat: 'cold-sandwich', nameEn: 'Turkey and Cheese', nameAr: 'تركي وجبنة', descEn: 'Premium smoked turkey with slices of cheese — a light, sophisticated classic.', descAr: 'تركي مدخن فاخر مع شرائح جبنة — كلاسيكية خفيفة وراقية.', price: 13, img: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400&h=300&fit=crop' },
+      { id: 'cs02', cat: 'cold-sandwich', nameEn: 'Roast Beef and Cheese', nameAr: 'روست بيف وجبنة', descEn: 'Juicy roast beef with melted cheese — hearty and satisfying.', descAr: 'روست بيف طازج مع جبنة ذائبة — شهي ومُشبِع وغني بالنكهة.', price: 13, img: 'https://images.unsplash.com/photo-1553909489-cd47e0907980?w=400&h=300&fit=crop' },
+      { id: 'cs03', cat: 'cold-sandwich', nameEn: 'Tuna', nameAr: 'تونة', descEn: 'Classic tuna sandwich with a creamy and flavorful mix.', descAr: 'ساندوتش التونة الكلاسيكي بمزيج كريمي لذيذ — طازج وبسيط ومثالي.', price: 11, img: 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&h=300&fit=crop' },
+      { id: 'cs04', cat: 'cold-sandwich', nameEn: 'Mozzarella with Basil', nameAr: 'موزاريلا مع ريحان', descEn: 'Creamy mozzarella and fragrant fresh basil.', descAr: 'ساندوتش بموزاريلا كريمية وريحان طازج عطري.', price: 12, img: 'https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'cs05', cat: 'cold-sandwich', nameEn: 'Italian Grilled Halloumi', nameAr: 'حلومي مشوي إيطالي', descEn: 'Perfectly golden, crisp, and full of flavor.', descAr: 'ساندوتش الحلومي المشوي بالطريقة الإيطالية — ذهبي ومقرمش وغني بالنكهة.', price: 12, img: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'cs06', cat: 'cold-sandwich', nameEn: 'Labneh Daqqa', nameAr: 'لبنة دقة', descEn: 'Creamy labnah with Hijazi spices.', descAr: 'لبنة كريمية بتوابل حجازية — ساندوتش طازج بلمسة محلية راقية.', price: 9, img: 'https://images.unsplash.com/photo-1559561853-08451507cbe7?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'cs07', cat: 'cold-sandwich', nameEn: 'Labneh & Zaatar', nameAr: 'لبنة مع زعتر', descEn: 'Creamy labneh with aromatic thyme and a touch of balsamic.', descAr: 'لبنة كريمية مع زعتر عطري ولمسة من صوص البلسميك.', price: 9, img: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'cs08', cat: 'cold-sandwich', nameEn: 'Halloumi and Labneh', nameAr: 'حلومي ولبنة', descEn: 'Salty halloumi paired with smooth labneh.', descAr: 'حلومي مالح مع لبنة ناعمة — توازن مثالي بين القوام والنكهة.', price: 11, img: 'https://images.unsplash.com/photo-1571805529673-0f56b922b359?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'cs09', cat: 'cold-sandwich', nameEn: 'Feta and Olive', nameAr: 'فيتا وزيتون', descEn: 'Creamy feta cheese with selected olive slices.', descAr: 'جبنة فيتا كريمية مع شرائح زيتون منتقاة — بساطة متوسطية بأجمل صورها.', price: 9, img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'cs10', cat: 'cold-sandwich', nameEn: 'Kashkawan Cheese', nameAr: 'جبنة كشكوان', descEn: 'Creamy rich sandwich filled with kashkawan.', descAr: 'ساندوتش كريمي وغني بجبنة الكشكوان الذائبة — فريد ومُشبِع.', price: 11, img: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'cs11', cat: 'cold-sandwich', nameEn: 'Cheddar Cheese', nameAr: 'جبنة شيدر', descEn: 'A classic sandwich with smooth bold cheddar.', descAr: 'ساندوتش كلاسيكي بجبنة شيدر ناعمة وجريئة — بسيط ومُشبِع دائماً.', price: 11, img: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'cs12', cat: 'cold-sandwich', nameEn: 'Feta Cheese', nameAr: 'جبنة فيتا', descEn: 'Light and tangy sandwich filled with creamy feta.', descAr: 'ساندوتش خفيف وحامض بفيتا كريمية — نظيف وطازج وخفيف.', price: 9, img: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'cs13', cat: 'cold-sandwich', nameEn: 'Spicy Feta Garden', nameAr: 'فيتا حار', descEn: 'A zesty and spicy sandwich with creamy feta and garden veggies.', descAr: 'ساندوتش نكهته لاذعة وحارة بالفيتا الكريمية وخضروات الحديقة الطازجة.', price: 9, img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop', tags: ['veg', 'spicy'] },
+      { id: 'cs14', cat: 'cold-sandwich', nameEn: 'Feta with Colored Bell Pepper', nameAr: 'فيتا مع فلفل ملون', descEn: 'Vibrant sandwich with creamy feta and roasted bell peppers.', descAr: 'ساندوتش حيوي بالفيتا الكريمية والفلفل الرومي الملون المشوي.', price: 9, img: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'cs15', cat: 'cold-sandwich', nameEn: 'Balsamic Thyme', nameAr: 'بلسميك وزعتر', descEn: 'Rich balsamic glaze and aromatic fresh thyme.', descAr: 'ساندوتش راقٍ بصوص البلسميك الغني والزعتر الطازج العطري.', price: 12, img: 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sl01', cat: 'salads', nameEn: 'Caesar Chicken Salad', nameAr: 'سلطة سيزر', descEn: 'Grilled chicken, parmesan, creamy ranch, and toasted crisp bread.', descAr: 'كلاسيكية وغنية — دجاج مشوي وبارميزان وصوص راينش كريمي وخبز محمص مقرمش.', price: 19, calories: 206, weight: 90, img: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=400&h=300&fit=crop', tags: ['popular'] },
+      { id: 'sl02', cat: 'salads', nameEn: 'Pasta Salad', nameAr: 'سلطة مكرونة', descEn: 'Pasta, beans, carrots, green peas, and sweet corn.', descAr: 'ملونة ومنعشة — مكرونة وفاصولياء وجزر وبازلاء وذرة حلوة.', price: 11, calories: 145, weight: 180, img: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sl03', cat: 'salads', nameEn: 'Quinoa Salad', nameAr: 'سلطة كينوا', descEn: 'Quinoa, parsley, lettuce, arugula, mint, and raisins.', descAr: 'خيار خفيف وصحي — كينوا وبقدونس وخس وجرجير ونعناع وزبيب.', price: 20, calories: 170, weight: 165, img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jc01', cat: 'juices', nameEn: 'Fresh Orange Juice', nameAr: 'عصير برتقال طازج', descEn: 'Freshly squeezed and zesty — rich in Vitamin C.', descAr: 'طازج وحامض ومنعش — غني بفيتامين C، نقي وطبيعي.', price: 10, calories: 80, img: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jc02', cat: 'juices', nameEn: 'Lemon with Mint', nameAr: 'عصير ليمون بالنعناع', descEn: 'A refreshing blend of fresh lemon and mint.', descAr: 'مزيج منعش من الليمون الطازج والنعناع — خفيف ومبرد ومنشط.', price: 10, calories: 90, img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jc03', cat: 'juices', nameEn: 'KDD Apple', nameAr: 'KDD تفاح', descEn: 'Classic apple juice — sweet, refreshing, and beloved.', descAr: 'عصير التفاح الكلاسيكي — حلو ومنعش ومحبوب.', price: 4, calories: 180, img: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jc04', cat: 'juices', nameEn: 'KDD Pineapple', nameAr: 'KDD أناناس', descEn: 'Tropical pineapple juice — sweet and fruity.', descAr: 'عصير الأناناس الاستوائي — حلو وفاكهي ومنعش على الفور.', price: 4, calories: 190, img: 'https://images.unsplash.com/photo-1589733955941-5eeaf752f6dd?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jc05', cat: 'juices', nameEn: 'KDD Mango', nameAr: 'KDD مانجو', descEn: 'Rich mango juice — smooth and tropical.', descAr: 'عصير المانجو الغني — ناعم واستوائي وحلو طبيعياً.', price: 4, calories: 200, img: 'https://images.unsplash.com/photo-1607532941433-304659e8198a?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jc06', cat: 'juices', nameEn: 'KDD Mixed Fruits', nameAr: 'KDD فواكه مشكلة', descEn: 'Vibrant mixed fruits juice.', descAr: 'عصير فواكه مشكل منعش — لمسة استوائية في كل رشفة.', price: 4, calories: 185, img: 'https://images.unsplash.com/photo-1546173159-315724a31696?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'jc07', cat: 'juices', nameEn: 'Water', nameAr: 'ماء', descEn: 'Still or sparkling — pure, refreshing hydration.', descAr: 'عادي أو فوار — ترطيب نقي ومنعش.', price: 2, calories: 0, img: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'hc01', cat: 'hot-coffee', nameEn: 'Espresso', nameAr: 'إسبريسو', descEn: 'A bold and concentrated shot of premium espresso.', descAr: 'شوت قهوة اسبريسو مركّز فاخر — قوي وغني وعطري.', price: 8, calories: 5, img: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&h=300&fit=crop' },
+      { id: 'hc02', cat: 'hot-coffee', nameEn: 'Cappuccino', nameAr: 'كابتشينو', descEn: 'Perfectly balanced espresso with velvety steamed milk.', descAr: 'اسبريسو متوازن بشكل مثالي مع الحليب المبخر المخملي وتاج من الرغوة الكريمية.', price: 14, calories: 120, img: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop' },
+      { id: 'hc03', cat: 'hot-coffee', nameEn: 'Latte', nameAr: 'لاتيه', descEn: 'Smooth and creamy — espresso blended with silky steamed milk.', descAr: 'ناعم وكريمي — اسبريسو ممزوج بالحليب المبخر الحريري.', price: 14, calories: 150, img: 'https://images.unsplash.com/photo-1561047029-3000c68339ca?w=400&h=300&fit=crop' },
+      { id: 'hc04', cat: 'hot-coffee', nameEn: 'Flat White', nameAr: 'فلات وايت', descEn: 'Double shot of espresso with microfoam steamed milk.', descAr: 'أقوى من اللاتيه — شوتان من الاسبريسو مع حليب مبخر بميكروفوم.', price: 15, calories: 130, img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=400&h=300&fit=crop' },
+      { id: 'hc05', cat: 'hot-coffee', nameEn: 'Turkish Coffee', nameAr: 'قهوة تركية', descEn: 'Authentic Turkish coffee — prepared in the traditional way.', descAr: 'قهوة تركية أصيلة — غنية وعطرية ومُحضَّرة بالطريقة التقليدية.', price: 10, calories: 15, img: 'https://images.unsplash.com/photo-1578374173713-b29c5e1c9af8?w=400&h=300&fit=crop' },
+      { id: 'hc06', cat: 'hot-coffee', nameEn: 'Hot Chocolate', nameAr: 'شوكولاتة ساخنة', descEn: 'Rich dark chocolate blended into smooth creamy milk.', descAr: 'دافئة ومدللة — شوكولاتة داكنة غنية ممزوجة بالحليب الكريمي الناعم.', price: 14, calories: 250, img: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=400&h=300&fit=crop' },
+      { id: 'cc01', cat: 'cold-coffee', nameEn: 'Iced Latte', nameAr: 'آيس لاتيه', descEn: 'Chilled and refreshing — espresso over ice with cold milk.', descAr: 'بارد ومنعش — اسبريسو مع الثلج والحليب البارد.', price: 16, calories: 140, img: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop' },
+      { id: 'cc02', cat: 'cold-coffee', nameEn: 'Cold Brew', nameAr: 'كولد برو', descEn: 'Slow-steeped for 12 hours — smooth, low-acid, naturally sweet.', descAr: 'مُنقَّع ببطء لـ ١٢ ساعة — قهوة باردة ناعمة وقليلة الحموضة وحلوة طبيعياً.', price: 18, calories: 20, img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400&h=300&fit=crop' },
+      { id: 'cc03', cat: 'cold-coffee', nameEn: 'Frappe', nameAr: 'فرابيه', descEn: 'Blended ice, espresso, and milk.', descAr: 'ثلج ممزوج باسبريسو وحليب — مشروب قهوة بارد كلاسيكي.', price: 18, calories: 230, img: 'https://images.unsplash.com/photo-1527761939622-933c7c5de64e?w=400&h=300&fit=crop' },
+      { id: 'cc04', cat: 'cold-coffee', nameEn: 'Iced Caramel Latte', nameAr: 'آيس لاتيه كراميل', descEn: 'Espresso and cold milk over ice, rich caramel sauce.', descAr: 'اسبريسو وحليب بارد مع الثلج مع صوص الكراميل الغني.', price: 18, calories: 280, img: 'https://images.unsplash.com/photo-1585664811087-47f65abbad64?w=400&h=300&fit=crop' },
+      { id: 'sc01', cat: 'sauces', nameEn: 'Pesto Sauce', nameAr: 'صوص البيستو', descEn: 'Fresh basil pesto — vibrant green, aromatic, and made in-house daily.', descAr: 'بيستو ريحان طازج — أخضر زاهٍ وعطري ومصنوع يومياً في المطبخ.', price: 6, img: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sc02', cat: 'sauces', nameEn: 'Ranch Sauce', nameAr: 'صوص رانش', descEn: 'Classic creamy ranch — cool, tangy, and the perfect dipping companion.', descAr: 'رانش كريمي كلاسيكي — بارد وحامض ومرافق مثالي للتغميس.', price: 4, img: 'https://images.unsplash.com/photo-1506280754576-f6fa8a873550?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sc03', cat: 'sauces', nameEn: 'Garlic Sauce', nameAr: 'صوص ثوم', descEn: 'Bold and creamy garlic sauce — rich in flavor, perfect for bread.', descAr: 'صوص ثوم جريء وكريمي — غني بالنكهة، مثالي للخبز والمشويات.', price: 4, img: 'https://images.unsplash.com/photo-1605189852829-b70a6adcf2bf?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sc04', cat: 'sauces', nameEn: 'Hot Sauce', nameAr: 'صوص حار', descEn: 'Fiery and punchy — a house-made hot sauce.', descAr: 'ناري وحاد — صوص حار منزلي بحرارة حقيقية ونكهة رائعة.', price: 4, img: 'https://images.unsplash.com/photo-1541614101331-1a5a3a194e92?w=400&h=300&fit=crop', tags: ['veg', 'spicy'] },
+      { id: 'bx01', cat: 'boxes', nameEn: 'Bread Box', nameAr: 'صندوق الخبز', descEn: 'A curated selection of our finest freshly baked breads.', descAr: 'تشكيلة منتقاة من أجود خبزنا الطازج — مثالية للمشاركة أو الإهداء.', price: 45, img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop', tags: ['veg', 'popular'] },
+      { id: 'bx02', cat: 'boxes', nameEn: 'Dips Box', nameAr: 'صندوق التغميسات', descEn: 'Our signature collection of artisan dips — a full flavor journey.', descAr: 'مجموعتنا المميزة من التغميسات اليدوية — رحلة نكهات كاملة في صندوق واحد.', price: 55, img: 'https://images.unsplash.com/photo-1559561853-08451507cbe7?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'bx03', cat: 'boxes', nameEn: 'Pretzel Box (Savory)', nameAr: 'صندوق البرتزل المالح', descEn: 'Six assorted savory pretzels — a crowd-pleaser for any gathering.', descAr: 'ستة برتزلات مالحة متنوعة — تُسعد الجميع في أي تجمع.', price: 42, img: 'https://images.unsplash.com/photo-1584736286279-0d85cc5b0937?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'bx04', cat: 'boxes', nameEn: 'Pretzel Box (Sweet)', nameAr: 'صندوق البرتزل الحلو', descEn: 'Six assorted sweet pretzels — a sweet treat box for dessert lovers.', descAr: 'ستة برتزلات حلوة متنوعة — صندوق حلويات لمحبي الحلو.', price: 48, img: 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'bx05', cat: 'boxes', nameEn: 'Mixed Bread & Dips Box', nameAr: 'صندوق الخبز والتغميسات', descEn: 'The best of both worlds — fresh breads with our finest dips.', descAr: 'أفضل ما في العالمين — تشكيلة من الخبز الطازج مع أجود تغميساتنا.', price: 65, img: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop', tags: ['veg', 'popular'] },
+      { id: 'bx06', cat: 'boxes', nameEn: 'Jars Gift Box', nameAr: 'صندوق الهدايا (قوارير)', descEn: "A beautifully packaged gift box of premium jars — the ultimate Sasa's gift.", descAr: 'صندوق هدايا معبأ بجمال من القوارير الفاخرة — أرقى هدية من ساساز.', price: 120, img: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'ml01', cat: 'meals', nameEn: 'Sandwich Meal', nameAr: 'وجبة ساندوتش', descEn: 'Your choice of sandwich + side salad + juice — complete satisfying meal.', descAr: 'ساندوتشك المفضل + سلطة جانبية + عصير — وجبة كاملة ومُشبِعة.', price: 25, img: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&h=300&fit=crop' },
+      { id: 'ml02', cat: 'meals', nameEn: 'Pretzel Meal', nameAr: 'وجبة البرتزل', descEn: 'Choose your pretzel + dip + drink — the perfect pretzel experience.', descAr: 'اختر برتزلك + تغميسة + مشروب — التجربة المثالية للبرتزل.', price: 20, img: 'https://images.unsplash.com/photo-1584736286279-0d85cc5b0937?w=400&h=300&fit=crop' },
+      { id: 'ml03', cat: 'meals', nameEn: 'Salad Meal', nameAr: 'وجبة السلطة', descEn: 'Fresh salad + bread + juice — a light, healthy, and complete meal.', descAr: 'سلطة طازجة + خبز + عصير — وجبة خفيفة وصحية ومتكاملة.', price: 28, img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'ml04', cat: 'meals', nameEn: 'Breakfast Meal', nameAr: 'وجبة الفطور', descEn: 'Simit or focaccia + two dips + fresh juice — start your morning right.', descAr: 'سميت أو فوكاشيا + تغميستان + عصير طازج — ابدأ صباحك بشكل صحيح.', price: 30, img: 'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=400&h=300&fit=crop', tags: ['veg'] }
+    ];
+
+    /* ============================================================
+       LOCALSTORAGE PERSISTENCE
+    ============================================================ */
+    const STORAGE_KEY = 'sasa_menu_data';
+
+    function loadMenuData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.warn('Corrupted localStorage data, using defaults');
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      }
+      return JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));
+    }
+
+    function saveMenuData() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(menuData));
+      } catch (e) {
+        console.error('localStorage save failed (storage full?):', e);
+        showToast('خطأ في الحفظ المحلي | Local save error', 'error');
+      }
+    }
+
+    function verifyStorage() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          console.log('✅ localStorage has', parsed.length, 'items');
+        } catch (e) {
+          console.warn('localStorage data is corrupted');
+        }
+      } else {
+        console.log('📋 localStorage is empty — using defaults');
+      }
+    }
+
+    /* Working copy — always loaded from localStorage first */
+    let menuData = loadMenuData();
+    let dataVersion = '';
+
+    /* ============================================================
+      DB CONVERSION
+    ============================================================ */
+    function fromDB(r) {
+      return { id: r.id, cat: r.cat, nameEn: r.name_en || '', nameAr: r.name_ar || '', descEn: r.desc_en || '', descAr: r.desc_ar || '', price: Number(r.price) || 0, calories: r.calories ? Number(r.calories) : null, weight: r.weight ? Number(r.weight) : null, img: r.img || '', tags: Array.isArray(r.tags) ? r.tags : [] };
+    }
+    function toDB(item) {
+      return { id: item.id, cat: item.cat, name_en: item.nameEn || '', name_ar: item.nameAr || '', desc_en: item.descEn || '', desc_ar: item.descAr || '', price: Number(item.price) || 0, calories: item.calories ? Number(item.calories) : null, weight: item.weight ? Number(item.weight) : null, img: item.img || '', tags: Array.isArray(item.tags) ? item.tags : [], updated_at: new Date().toISOString() };
+    }
+
+    /* ============================================================
+      SYNC STATUS
+    ============================================================ */
+    function setSyncStatus(s) {
+      const el = document.getElementById('syncSt');
+      if (!el) return;
+      const spans = el.querySelectorAll('span');
+      el.className = 'sync-ind ' + s;
+      const m = { synced: ['متزامن', 'Synced'], syncing: ['جاري التحديث...', 'Syncing...'], error: ['غير متصل', 'Offline'] };
+      if (spans[0]) spans[0].textContent = m[s][0];
+      if (spans[1]) spans[1].textContent = m[s][1];
+    }
+
+    /* ============================================================
+      DATA LOADING
+    ============================================================ */
+    async function loadFromSupabase() {
+      try {
+        setSyncStatus('syncing');
+        const rows = await sb.select('menu_items');
+        if (rows && rows.length > 0) {
+          menuData = rows.map(fromDB);
+          dataVersion = JSON.stringify(rows);
+          setSyncStatus('synced');
+          saveMenuData();
+          return true;
+        } else {
+          await seedDatabase();
+          return true;
+        }
+      } catch (err) {
+        console.error('Load failed:', err);
+        setSyncStatus('error');
+        menuData = loadMenuData();
+        showToast('تعذر الاتصال بقاعدة البيانات — يتم استخدام البيانات المحلية | Offline - using local cache', 'error');
+        return false;
+      }
+    }
+
+    async function seedDatabase() {
+      try {
+        setSyncStatus('syncing');
+        const dbData = DEFAULT_MENU_DATA.map(toDB);
+        await sb.upsert('menu_items', dbData);
+        menuData = JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));
+        dataVersion = JSON.stringify(dbData);
+        setSyncStatus('synced');
+        saveMenuData();
+        showToast('تم رفع البيانات الافتراضية بنجاح | Database seeded', 'ok');
+      } catch (err) {
+        console.error('Seed failed:', err);
+        setSyncStatus('error');
+        menuData = loadMenuData();
+      }
+    }
+
+    async function saveItemToSupabase(item) {
+      try {
+        setSyncStatus('syncing');
+        await sb.update('menu_items', item.id, toDB(item));
+        setSyncStatus('synced');
+        return true;
+      } catch (err) {
+        console.error('Save failed:', err);
+        setSyncStatus('error');
+        showToast('فشل الحفظ — تحقق من الاتصال | Save failed — check connection', 'error');
+        return false;
+      }
+    }
+
+    async function deleteItemFromSupabase(id) {
+      try {
+        setSyncStatus('syncing');
+        await sb.remove('menu_items', id);
+        setSyncStatus('synced');
+        return true;
+      } catch (err) {
+        console.error('Delete failed:', err);
+        setSyncStatus('error');
+        showToast('فشل الحذف | Delete failed', 'error');
+        return false;
+      }
+    }
+
+    /* ============================================================
+      POLLING — كل 15 ثانية يتحقق من تحديثات جديدة
+    ============================================================ */
+    function startPolling() {
+      setInterval(async () => {
+        if (document.getElementById('admPanel').classList.contains('open')) return;
+        try {
+          const rows = await sb.select('menu_items');
+          const nv = JSON.stringify(rows);
+          if (nv !== dataVersion && rows.length > 0) {
+            dataVersion = nv;
+            menuData = rows.map(fromDB);
+            saveMenuData();
+            renderMenuSections();
+            renderCategoryTabs();
+            renderBestsellers();
+            showToast('تم تحديث القائمة | Menu updated', 'info');
+          }
+        } catch (e) { /* صامت */ }
+      }, 15000);
+    }
+
+    /* ============================================================
+      STATE
+    ============================================================ */
+    let currentLang = localStorage.getItem('sasa_lang') || 'ar';
+    let isAdmin = false;
+    let editingItemId = null;
+    let pendingImg = null;
+    let activeCategory = 'bread';
+    let adminFilterCat = 'all';
+
+    /* ============================================================
+      CATEGORIES
+    ============================================================ */
+    const categories = [
+      { id: 'bread', nameEn: 'Bread', nameAr: 'خبز', icon: 'ti-bread', introEn: 'Our breads are baked fresh every morning using premium European recipes.', introAr: 'تُخبز أرغفتنا طازجة كل صباح باستخدام وصفات أوروبية فاخرة ومكونات محلية منتقاة.' },
+      { id: 'dips', nameEn: 'Dips', nameAr: 'تغميسات', icon: 'ti-bowl', introEn: 'Our artisan dips are crafted fresh daily — bold Mediterranean flavors and local Hijazi classics.', introAr: 'تغميساتنا اليدوية تُحضَّر طازجة يومياً — نكهات متوسطية جريئة وكلاسيكيات حجازية.' },
+      { id: 'jars', nameEn: 'Jars', nameAr: 'قوارير', icon: 'ti-bottle', introEn: 'Take your favorites home. Our premium jars are filled with the same artisan spreads.', introAr: 'اصطحب مفضلاتك للمنزل. قواريرنا الفاخرة مملوءة بنفس التغميسات اليدوية.' },
+      { id: 'savory', nameEn: 'Savory Pretzels', nameAr: 'برتزل مالح', icon: 'ti-pretzel', introEn: 'Warm, twisted, and generously filled — handcrafted in the European tradition.', introAr: 'دافئة وملتوية ومحشوة بسخاء — مصنوعة يدوياً في التقليد الأوروبي.' },
+      { id: 'sweet', nameEn: 'Sweet Pretzels', nameAr: 'برتزل حلو', icon: 'ti-cookie', introEn: 'From Nutella dreams to Saudi-inspired dates & cream — indulge in our sweet collection.', introAr: 'من برتزل النوتيلا الحالم إلى تمر وقشطة بإلهام سعودي — انغمس في حلوياتنا.' },
+      { id: 'hot-sandwich', nameEn: 'Hot Sandwiches', nameAr: 'سندوتش ساخن', icon: 'ti-flame', introEn: 'Freshly assembled and served warm — built on our signature breads.', introAr: 'مُجمَّعة طازجة وتُقدَّم ساخنة — مبنية على خبزنا المميز.' },
+      { id: 'cold-sandwich', nameEn: 'Cold Sandwiches', nameAr: 'سندوتش بارد', icon: 'ti-sandwich', introEn: 'Light, fresh, and elegantly layered — featuring premium ingredients.', introAr: 'خفيفة وطازجة ومرتبة بأناقة — تضم مكونات فاخرة.' },
+      { id: 'salads', nameEn: 'Salads', nameAr: 'سلطات', icon: 'ti-salad', introEn: 'Fresh, vibrant, and nourishing — assembled with the finest greens and dressings.', introAr: 'طازجة وحيوية ومغذية — مُجمَّعة بعناية باستخدام أجود الخضر والصوصات.' },
+      { id: 'juices', nameEn: 'Juices', nameAr: 'عصائر', icon: 'ti-glass-full', introEn: 'Pure, fresh, and naturally energizing — from hand-squeezed citrus to curated selections.', introAr: 'نقية وطازجة ومنشطة طبيعياً — من الحمضيات المعصورة يدوياً إلى تشكيلات منتقاة.' },
+      { id: 'hot-coffee', nameEn: 'Hot Coffee', nameAr: 'قهوة ساخنة', icon: 'ti-coffee', introEn: 'Expertly crafted espresso-based drinks — from bold shots to velvety lattes.', introAr: 'مشروبات اسبريسو محضَّرة باحتراف — من الشوتات القوية إلى اللاتيه المخملي.' },
+      { id: 'cold-coffee', nameEn: 'Cold Coffee', nameAr: 'قهوة باردة', icon: 'ti-glass', introEn: 'Cool down with our premium cold coffee — iced lattes, cold brew, frappes.', introAr: 'بَرِّد نفسك مع تشكيلة قهوتنا الباردة الفاخرة.' },
+      { id: 'sauces', nameEn: 'Sauces', nameAr: 'صوصات', icon: 'ti-droplet', introEn: 'The perfect finishing touch — house-made sauces complement every item.', introAr: 'اللمسة النهائية المثالية — صوصاتنا المنزلية تكمل كل صنف.' },
+      { id: 'boxes', nameEn: 'Boxes', nameAr: 'صناديق', icon: 'ti-package', introEn: "Share the Sasa's experience — curated boxes for gifting and gatherings.", introAr: 'شارك تجربة ساساز — صناديق منتقاة للإهداء والتجمعات.' },
+      { id: 'meals', nameEn: 'Meals', nameAr: 'وجبات', icon: 'ti-tools-kitchen-2', introEn: 'Complete, balanced meals at great value — sandwich, salad, or pretzel with a drink.', introAr: 'وجبات متكاملة ومتوازنة بقيمة رائعة — ساندوتش أو سلطة أو برتزل مع مشروب.' }
+    ];
+
+    const bestsellers = [
+      { nameEn: 'Pretzel Classic', nameAr: 'برتزل كلاسيك', price: 6, img: 'https://images.unsplash.com/photo-1584736286279-0d85cc5b0937?w=200&h=200&fit=crop' },
+      { nameEn: 'Trio Pretzel', nameAr: 'تريو', price: 8, img: 'https://images.unsplash.com/photo-1600803907087-f56d462fd26b?w=200&h=200&fit=crop' },
+      { nameEn: 'Chicken Pesto', nameAr: 'دجاج البيستو', price: 13, img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=200&h=200&fit=crop' },
+      { nameEn: 'Labnah Doggat Jar', nameAr: 'لبنة دقة (قورورة)', price: 29, img: 'https://images.unsplash.com/photo-1571805529673-0f56b922b359?w=200&h=200&fit=crop' },
+      { nameEn: 'Dates Cardamom Pretzel', nameAr: 'برتزل التمر والقشطة', price: 6, img: 'https://images.unsplash.com/photo-1605711285791-0219e80e43a3?w=200&h=200&fit=crop' },
+      { nameEn: 'Caesar Chicken Salad', nameAr: 'سلطة سيزر', price: 19, img: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=200&h=200&fit=crop' }
+    ];
+
+    const allTags = ['veg', 'spicy', 'popular'];
+    const tagLabels = { veg: { ar: 'نباتي', en: 'Vegetarian' }, spicy: { ar: 'حار', en: 'Spicy' }, popular: { ar: 'مميز', en: 'Popular' } };
+
+    /* ============================================================
+      INIT
+    ============================================================ */
+    document.addEventListener('DOMContentLoaded', async () => {
+      applyLang(currentLang);
+      verifyStorage();
+      
+      // Render locally immediately
+      renderBestsellers();
+      renderCategoryTabs();
+      renderMenuSections();
+      renderFooterLinks();
+      showCategory(activeCategory);
+      setupScroll();
+      
+      // Hide loading screen immediately since we rendered from cache
+      const ls = document.getElementById('ldScreen');
+      if (ls) { ls.classList.add('out'); setTimeout(() => ls.remove(), 600); }
+
+      // Then check background sync
+      await loadFromSupabase();
+      renderBestsellers();
+      renderCategoryTabs();
+      renderMenuSections();
+      showCategory(activeCategory);
+      
+      startPolling();
+
+      // Key listeners
+      document.addEventListener('keydown', e => {
+        if (e.ctrlKey && e.shiftKey && e.key === 'A') { e.preventDefault(); openAdmin(); }
+        if (e.key === 'Escape') { closeSearch(); closeAdmin(); closeEditModal(); }
+      });
+
+      if (new URLSearchParams(window.location.search).get('admin') === 'true') openAdmin();
+    });
+
+    /* ============================================================
+      LANGUAGE
+    ============================================================ */
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('sasa_lang', lang);
+      applyLang(lang);
+    }
+    function applyLang(lang) {
+      if (lang === 'en') {
+        document.documentElement.setAttribute('lang', 'en');
+        document.documentElement.setAttribute('dir', 'ltr');
+        document.body.setAttribute('dir', 'ltr');
+        document.body.classList.add('lang-en');
+      } else {
+        document.documentElement.setAttribute('lang', 'ar');
+        document.documentElement.setAttribute('dir', 'rtl');
+        document.body.setAttribute('dir', 'rtl');
+        document.body.classList.remove('lang-en');
+      }
+      document.querySelectorAll('.lang-tog button').forEach(btn => {
+        const oc = btn.getAttribute('onclick') || '';
+        btn.classList.toggle('on', (lang === 'en' && oc.includes("'en'")) || (lang === 'ar' && oc.includes("'ar'")));
+      });
+    }
+
+    /* ============================================================
+      RENDER — BESTSELLERS
+    ============================================================ */
+    function renderBestsellers() {
+      const el = document.getElementById('bsScroll');
+      if (!el) return;
+      el.innerHTML = bestsellers.map(b => `
+    <div class="bs-card" onclick="findItem('${b.nameEn.replace(/'/g, "\\'")}')">
+      <div class="bs-img">
+        <img src="${b.img}" alt="${b.nameEn}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop'">
+        <div class="bs-star"><i class="ti ti-star-filled"></i></div>
+      </div>
+      <div class="bs-info">
+        <div class="bs-nm"><span class="ar">${b.nameAr}</span><span class="en">${b.nameEn}</span></div>
+        <div class="bs-pr">${b.price} <span>SAR</span></div>
+      </div>
+    </div>`).join('');
+    }
+
+    /* ============================================================
+      RENDER — CATEGORY TABS
+    ============================================================ */
+    function buildCategoryCounts() {
+      const c = {};
+      menuData.forEach(i => { c[i.cat] = (c[i.cat] || 0) + 1; });
+      return c;
+    }
+
+    function renderCategoryTabs() {
+      const counts = buildCategoryCounts();
+      const el = document.getElementById('catTabs');
+      if (!el) return;
+      el.innerHTML = categories.map(c => {
+        const cnt = counts[c.id] || 0;
+        if (cnt === 0) return '';
+        const onClass = activeCategory === c.id ? ' on' : '';
+        return `<button class="cat-tab${onClass}" onclick="showCategory('${c.id}')"><i class="ti ${c.icon}"></i> <span class="ar">${c.nameAr}</span><span class="en">${c.nameEn}</span> <span class="cat-cnt">${cnt}</span></button>`;
+      }).join('');
+    }
+
+    function renderFooterLinks() {
+      const el = document.getElementById('fCatLinks');
+      if (!el) return;
+      el.innerHTML = categories.map(c => `
+        <li><a href="#menu" onclick="showCategory('${c.id}');return false"><span class="ar">${c.nameAr}</span><span class="en">${c.nameEn}</span></a></li>
+      `).join('');
+    }
+
+    /* ============================================================
+      RENDER — MENU SECTIONS
+    ============================================================ */
+    function renderMenuSections() {
+      const container = document.getElementById('menuSec');
+      if (!container) return;
+      container.innerHTML = categories.map(cat => {
+        const items = menuData.filter(i => i.cat === cat.id);
+        if (items.length === 0) return '';
+        const cards = items.map(item => buildCard(item)).join('');
+        return `<div class="m-section${activeCategory === cat.id ? ' on' : ''}" data-cat="${cat.id}">
+      <div class="sec-hd">
+        <h2><i class="ti ${cat.icon}"></i> <span class="ar">${cat.nameAr}</span><span class="en">${cat.nameEn}</span></h2>
+        <p><span class="ar">${cat.introAr || ''}</span><span class="en">${cat.introEn || ''}</span></p>
+      </div>
+      <div class="m-grid">${cards}</div>
+    </div>`;
+      }).join('');
+    }
+
+    function buildCard(item) {
+      const tagsHtml = (item.tags || []).filter(t => allTags.includes(t)).map(t => {
+        const cls = t === 'veg' ? 'tag-veg' : t === 'spicy' ? 'tag-spicy' : 'tag-pop';
+        const lbl = tagLabels[t] || {};
+        return `<span class="tag ${cls}"><span class="ar">${lbl.ar || t}</span><span class="en">${lbl.en || t}</span></span>`;
+      }).join('');
+
+      let metaHtml = '';
+      if (item.calories) metaHtml += `<span><i class="ti ti-flame"></i> ${item.calories} cal</span>`;
+      if (item.weight) metaHtml += `<span><i class="ti ti-scale"></i> ${item.weight}g</span>`;
+
+      return `<div class="m-card" data-id="${item.id}">
+    <div class="c-img">
+      <img src="${item.img}" alt="${item.nameEn}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop'">
+      <div class="c-tags">${tagsHtml}</div>
+    </div>
+    <div class="c-body">
+      <div class="c-name"><span class="ar">${item.nameAr}</span><span class="en">${item.nameEn}</span></div>
+      <div class="c-desc"><span class="ar">${item.descAr || ''}</span><span class="en">${item.descEn || ''}</span></div>
+      ${metaHtml ? `<div class="c-meta">${metaHtml}</div>` : ''}
+      <div class="c-ft">
+        <div class="c-price">${item.price} <span>SAR</span></div>
+        <button class="a-edit" onclick="openEditModal('${item.id}')" title="تعديل"><i class="ti ti-edit"></i></button>
+      </div>
+    </div>
+  </div>`;
+    }
+
+    /* ============================================================
+      CATEGORY SWITCHING
+    =========================================================== */
+    function showCategory(catId) {
+      activeCategory = catId;
+      // تحديث التبويبات
+      document.querySelectorAll('.cat-tab').forEach(tab => {
+        tab.classList.toggle('on', tab.getAttribute('onclick') && tab.getAttribute('onclick').includes(`'${catId}'`));
+      });
+      // تحديث الأقسام
+      document.querySelectorAll('.m-section').forEach(sec => {
+        sec.classList.toggle('on', sec.dataset.cat === catId);
+      });
+      // سكرول لقسم المنيو
+      const sec = document.querySelector(`.m-section[data-cat="${catId}"]`);
+      if (sec) {
+        const offset = 64 + 48; // header height (64px) + tab height (around 48px)
+        const top = sec.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    }
+
+    /* ============================================================
+      FIND ITEM (من الأكثر مبيعاً)
+    ============================================================ */
+    function findItem(nameEn) {
+      const item = menuData.find(i => i.nameEn === nameEn);
+      if (!item) return;
+      showCategory(item.cat);
+      setTimeout(() => {
+        const card = document.querySelector(`.m-card[data-id="${item.id}"]`);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          card.style.boxShadow = '0 0 0 3px var(--accent), var(--shH)';
+          setTimeout(() => { card.style.boxShadow = ''; }, 2000);
+        }
+      }, 500);
+    }
+
+    /* ============================================================
+      SCROLL — هيدر لاصق
+    ============================================================ */
+    function setupScroll() {
+      const header = document.getElementById('hdr');
+      window.addEventListener('scroll', () => {
+        header.classList.toggle('scrolled', window.scrollY > 10);
+      }, { passive: true });
+    }
+
+    /* ============================================================
+      SEARCH
+    ============================================================ */
+    function openSearch() {
+      const ov = document.getElementById('srchOv');
+      ov.classList.add('open');
+      const inp = document.getElementById('srchInp');
+      inp.value = '';
+      inp.focus();
+      document.getElementById('srchRes').innerHTML = '';
+    }
+    function closeSearch() {
+      document.getElementById('srchOv').classList.remove('open');
+    }
+    function doSearch(q) {
+      const res = document.getElementById('srchRes');
+      if (!q || q.length < 2) { res.innerHTML = ''; return; }
+      const ql = q.toLowerCase();
+      const found = menuData.filter(i =>
+        (i.nameAr && i.nameAr.includes(q)) ||
+        (i.nameEn && i.nameEn.toLowerCase().includes(ql)) ||
+        (i.descAr && i.descAr.includes(q)) ||
+        (i.descEn && i.descEn.toLowerCase().includes(ql))
+      ).slice(0, 20);
+
+      if (found.length === 0) {
+        res.innerHTML = `<div class="empty-st"><i class="ti ti-mood-sad" style="font-size:2rem;display:block;margin-bottom:8px"></i><span class="ar">لا توجد نتائج</span><span class="en">No results found</span></div>`;
+        return;
+      }
+      res.innerHTML = found.map(i => {
+        const cat = categories.find(c => c.id === i.cat);
+        const catName = cat ? (currentLang === 'ar' ? cat.nameAr : cat.nameEn) : '';
+        return `<div class="sr-item" onclick="closeSearch();findItemById('${i.id}')" style="display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid var(--border);cursor:pointer">
+      <img src="${i.img}" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:var(--rr)" onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100&h=100&fit=crop'">
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:.85rem"><span class="ar">${i.nameAr}</span><span class="en">${i.nameEn}</span></div>
+        <div style="font-size:.7rem;color:var(--muted)">${catName}</div>
+      </div>
+      <div style="font-weight:800;color:var(--accent);font-size:.85rem">${i.price} <small>SAR</small></div>
+    </div>`;
+      }).join('');
+    }
+    function findItemById(id) {
+      const item = menuData.find(i => i.id === id);
+      if (!item) return;
+      showCategory(item.cat);
+      setTimeout(() => {
+        const card = document.querySelector(`.m-card[data-id="${id}"]`);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          card.style.boxShadow = '0 0 0 3px var(--accent), var(--shH)';
+          setTimeout(() => { card.style.boxShadow = ''; }, 2000);
+        }
+      }, 500);
+    }
+
+    /* ============================================================
+      ADMIN PANEL
+    ============================================================ */
+    function openAdmin() {
+      document.getElementById('admPanel').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeAdmin() {
+      document.getElementById('admPanel').classList.remove('open');
+      document.body.style.overflow = '';
+      renderMenuSections();
+      renderCategoryTabs();
+      renderBestsellers();
+      showCategory(activeCategory);
+    }
+    function adminLogin() {
+      const pass = document.getElementById('admPass').value;
+      if (pass === ADMIN_PASSWORD) {
+        isAdmin = true;
+        document.body.classList.add('adm');
+        document.getElementById('admLogin').style.display = 'none';
+        document.getElementById('admDash').classList.add('open');
+        document.getElementById('loginErr').style.display = 'none';
+        renderAdminFilters();
+        renderAdminList();
+      } else {
+        document.getElementById('loginErr').style.display = 'block';
+      }
+    }
+    function adminLogout() {
+      isAdmin = false;
+      document.body.classList.remove('adm');
+      document.getElementById('admLogin').style.display = '';
+      document.getElementById('admDash').classList.remove('open');
+      document.getElementById('admPass').value = '';
+    }
+
+    function renderAdminFilters() {
+      const el = document.getElementById('adminFilters');
+      const counts = buildCategoryCounts();
+      let html = `<button class="af${adminFilterCat === 'all' ? ' on' : ''}" onclick="setAdminFilter('all')"><span class="ar">الكل</span><span class="en">All</span> (${menuData.length})</button>`;
+      categories.forEach(c => {
+        const cnt = counts[c.id] || 0;
+        if (cnt === 0) return;
+        html += `<button class="af${adminFilterCat === c.id ? ' on' : ''}" onclick="setAdminFilter('${c.id}')"><span class="ar">${c.nameAr}</span><span class="en">${c.nameEn}</span> (${cnt})</button>`;
+      });
+      el.innerHTML = html;
+    }
+    function setAdminFilter(cat) {
+      adminFilterCat = cat;
+      renderAdminFilters();
+      renderAdminList();
+    }
+
+    function renderAdminList() {
+      const el = document.getElementById('adminGrid');
+      const items = adminFilterCat === 'all' ? menuData : menuData.filter(i => i.cat === adminFilterCat);
+      if (items.length === 0) {
+        el.innerHTML = `<div class="empty-st" style="grid-column:1/-1"><i class="ti ti-package-off"></i><p><span class="ar">لا توجد أصناف</span><span class="en">No items</span></p></div>`;
+        return;
+      }
+      el.innerHTML = items.map(i => {
+        const cat = categories.find(c => c.id === i.cat);
+        const catName = cat ? cat.nameAr : i.cat;
+        return `<div class="adm-card">
+      <img src="${i.img}" alt="" onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100&h=100&fit=crop'">
+      <div class="adm-card-info">
+        <div class="adm-card-nm">${i.nameAr}</div>
+        <div class="adm-card-cat">${catName}</div>
+        <div class="adm-card-pr">${i.price} SAR</div>
+      </div>
+      <div class="adm-card-acts">
+        <button class="ac-e" onclick="openEditModal('${i.id}')" title="تعديل"><i class="ti ti-edit"></i></button>
+        <button class="ac-d" id="del-${i.id}" onclick="confirmDelete('${i.id}')" title="حذف"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`;
+      }).join('');
+    }
+
+    function confirmDelete(id) {
+      const btn = document.getElementById('del-' + id);
+      if (!btn) return;
+      if (btn.classList.contains('cf')) {
+        deleteItemById(id);
+      } else {
+        btn.classList.add('cf');
+        btn.innerHTML = '<span class="ar">تأكيد؟</span><span class="en">Sure?</span>';
+        btn.title = 'اضغط مرة أخرى للحذف';
+        setTimeout(() => {
+          if (btn) {
+            btn.classList.remove('cf');
+            btn.innerHTML = '<i class="ti ti-trash"></i>';
+            btn.title = 'حذف';
+          }
+        }, 3000);
+      }
+    }
+
+    async function deleteItemById(id) {
+      const idx = menuData.findIndex(i => i.id === id);
+      if (idx === -1) return;
+      const name = menuData[idx].nameAr;
+      menuData.splice(idx, 1);
+      saveMenuData();
+      await deleteItemFromSupabase(id);
+      renderAdminList();
+      renderAdminFilters();
+      showToast(`تم حذف: ${name} | Deleted successfully`, 'ok');
+    }
+
+    async function resetToDefault() {
+      if (confirm('استعادة القائمة الافتراضية؟ سيتم مسح التغييرات.\nReset to defaults? All changes will be lost.')) {
+        localStorage.removeItem(STORAGE_KEY);
+        menuData = JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));
+        await seedDatabase();
+        saveMenuData();
+        renderAdminFilters();
+        renderAdminList();
+        showToast('تم استعادة البيانات الافتراضية | Reset to defaults', 'ok');
+      }
+    }
+
+    /* ============================================================
+      EDIT MODAL
+    ============================================================ */
+    function openEditModal(id) {
+      editingItemId = id;
+      pendingImg = null;
+      const modal = document.getElementById('editModal');
+      const titleAr = document.getElementById('editTitle');
+      const titleEn = document.getElementById('editTitleEn');
+      const delBtn = document.getElementById('editDelBtn');
+
+      const catSelect = document.getElementById('editCat');
+      catSelect.innerHTML = categories.map(c => `<option value="${c.id}">${c.nameAr} — ${c.nameEn}</option>`).join('');
+
+      const tagsEl = document.getElementById('editTags');
+      tagsEl.innerHTML = allTags.map(t => {
+        const lbl = tagLabels[t];
+        return `<button type="button" class="ed-tag" data-tag="${t}" onclick="toggleEditTag(this)"><span class="ar">${lbl.ar}</span><span class="en">${lbl.en}</span></button>`;
+      }).join('');
+
+      if (id) {
+        const item = menuData.find(i => i.id === id);
+        if (!item) return;
+        titleAr.textContent = 'تعديل الصنف';
+        titleEn.textContent = 'Edit Item';
+        delBtn.style.display = '';
+        document.getElementById('editNameAr').value = item.nameAr || '';
+        document.getElementById('editNameEn').value = item.nameEn || '';
+        document.getElementById('editDescAr').value = item.descAr || '';
+        document.getElementById('editDescEn').value = item.descEn || '';
+        document.getElementById('editPrice').value = item.price || 0;
+        document.getElementById('editCal').value = item.calories || '';
+        document.getElementById('editWeight').value = item.weight || '';
+        document.getElementById('editCat').value = item.cat;
+        document.getElementById('editId').value = item.id;
+        document.getElementById('editImgUrl').value = item.img || '';
+        setImgPreview(item.img || '');
+        (item.tags || []).forEach(t => {
+          const tagBtn = tagsEl.querySelector(`[data-tag="${t}"]`);
+          if (tagBtn) tagBtn.classList.add('on');
+        });
+      } else {
+        titleAr.textContent = 'إضافة صنف جديد';
+        titleEn.textContent = 'Add New Item';
+        delBtn.style.display = 'none';
+        document.getElementById('editNameAr').value = '';
+        document.getElementById('editNameEn').value = '';
+        document.getElementById('editDescAr').value = '';
+        document.getElementById('editDescEn').value = '';
+        document.getElementById('editPrice').value = '';
+        document.getElementById('editCal').value = '';
+        document.getElementById('editWeight').value = '';
+        document.getElementById('editCat').value = activeCategory;
+        const prefix = activeCategory.substring(0, 2);
+        const num = String(Math.floor(Math.random() * 900) + 100);
+        document.getElementById('editId').value = prefix + num;
+        document.getElementById('editImgUrl').value = '';
+        setImgPreview('');
+      }
+
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('open');
+      if (!document.getElementById('admPanel').classList.contains('open')) {
+        document.body.style.overflow = '';
+      }
+      editingItemId = null;
+      pendingImg = null;
+    }
+
+    function toggleEditTag(btn) {
+      btn.classList.toggle('on');
+    }
+
+    function setImgPreview(src) {
+      const el = document.getElementById('editImgPreview');
+      if (!el) return;
+      if (src && src.startsWith('http')) {
+        el.innerHTML = `<img src="${src}" alt="" onerror="this.parentElement.innerHTML='<i class=\\'ti ti-photo-off\\' style=\\'font-size:2rem;color:var(--muted)\\'></i>'">`;
+      } else if (src && src.startsWith('data:')) {
+        el.innerHTML = `<img src="${src}" alt="">`;
+      } else {
+        el.innerHTML = '<i class="ti ti-photo" style="font-size:2.5rem;color:var(--muted)"></i>';
+      }
+    }
+
+    function applyImageUrl(url) {
+      pendingImg = null;
+      setImgPreview(url);
+    }
+
+    async function handleImageUpload(file) {
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        showToast('يرجى اختيار ملف صورة | Please select an image file', 'error');
+        return;
+      }
+      try {
+        const dataUrl = await compressImage(file, 500, 0.7);
+        const sizeKB = Math.round((dataUrl.length * 3) / 4 / 1024);
+        if (sizeKB > 500) {
+          showToast(`الصورة كبيرة جداً (${sizeKB}KB) — يُنصح برابط صورة بدلاً من ذلك`, 'error');
+        }
+        pendingImg = dataUrl;
+        document.getElementById('editImgUrl').value = '';
+        setImgPreview(dataUrl);
+      } catch (e) {
+        showToast('فشل في معالجة الصورة | Image processing failed', 'error');
+      }
+    }
+
+    function compressImage(file, maxDim, quality) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width, h = img.height;
+            if (w > maxDim || h > maxDim) {
+              const ratio = Math.min(maxDim / w, maxDim / h);
+              w = Math.round(w * ratio);
+              h = Math.round(h * ratio);
+            }
+            canvas.width = Math.max(1, w);
+            canvas.height = Math.max(1, h);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = () => reject(new Error('Image load failed'));
+          img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error('File read failed'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function saveEdit() {
+      const nameAr = document.getElementById('editNameAr').value.trim();
+      const nameEn = document.getElementById('editNameEn').value.trim();
+      const descAr = document.getElementById('editDescAr').value.trim();
+      const descEn = document.getElementById('editDescEn').value.trim();
+      const price = parseFloat(document.getElementById('editPrice').value) || 0;
+      const cal = document.getElementById('editCal').value ? parseInt(document.getElementById('editCal').value) : null;
+      const weight = document.getElementById('editWeight').value ? parseInt(document.getElementById('editWeight').value) : null;
+      const cat = document.getElementById('editCat').value;
+      const id = document.getElementById('editId').value.trim();
+      const imgUrl = document.getElementById('editImgUrl').value.trim();
+
+      if (!nameAr && !nameEn) {
+        showToast('يرجى إدخال اسم الصنف | Please enter item name', 'error');
+        return;
+      }
+      if (!id) {
+        showToast('يرجى إدخال معرف الصنف | Please enter item ID', 'error');
+        return;
+      }
+      if (!editingItemId || editingItemId !== id) {
+        if (menuData.find(i => i.id === id)) {
+          showToast('معرف الصنف مستخدم مسبقاً | ID already in use', 'error');
+          return;
+        }
+      }
+
+      const tags = [];
+      document.querySelectorAll('#editTags .ed-tag.on').forEach(btn => {
+        tags.push(btn.dataset.tag);
+      });
+
+      const img = pendingImg || imgUrl || '';
+      const item = { id, cat, nameEn, nameAr, descEn, descAr, price, calories: cal, weight, img, tags };
+
+      if (editingItemId && editingItemId !== id) {
+        await deleteItemFromSupabase(editingItemId);
+        const idx = menuData.findIndex(i => i.id === editingItemId);
+        if (idx !== -1) menuData.splice(idx, 1);
+        menuData.push(item);
+        await sb.upsert('menu_items', [toDB(item)]);
+      } else if (editingItemId) {
+        const idx = menuData.findIndex(i => i.id === editingItemId);
+        if (idx !== -1) menuData[idx] = item;
+        await saveItemToSupabase(item);
+      } else {
+        menuData.push(item);
+        await sb.upsert('menu_items', [toDB(item)]);
+      }
+
+      saveMenuData();
+      renderAdminGrid();
+      renderAdminList();
+      renderAdminFilters();
+      closeEditModal();
+      showToast(editingItemId ? 'تم تحديث الصنف بنجاح | Item updated' : 'تم إضافة الصنف بنجاح | Item added', 'ok');
+    }
+
+    async function deleteCurrentItem() {
+      if (!editingItemId) return;
+      await deleteItemById(editingItemId);
+      closeEditModal();
+    }
+
+    /* ============================================================
+      TOAST
+    ============================================================ */
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      const icon = type === 'ok' ? 'ti-check' : type === 'error' ? 'ti-alert-circle' : 'ti-info-circle';
+      toast.innerHTML = `<i class="ti ${icon}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(20px)';
+        toast.style.transition = 'all .3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+  </script>
+</body>
+
+</html>
