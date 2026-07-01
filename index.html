@@ -4,30 +4,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ساساز بيكري | sasa's Bakery</title>
-  <meta name="description" content="ساساز بيكري — مخبوزات أوروبية فاخرة بروح سعودية. طازج يومياً بدون مواد حافظة." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <title>sasa's Bakery | يركيب زاساس</title>
+  <meta name="description" content="يركيب زاساس — مخبوزات أوروبية بنكهة سعودية. جزاط يومياً بدون مواد حافظة." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Zain:wght@300;400;700;900&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* ===== CSS VARIABLES ===== */
     :root {
       --maroon: #4A1324;
       --orange: #F16137;
-      --sage: #71A093;
       --cream: #FAF7F2;
       --charcoal: #2C2C2C;
       --white: #FFFFFF;
-      --border: #EEEEEE;
-      --shadow: rgba(74, 19, 36, 0.12);
+      --border: #EAEAEA;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
 
-    *,
-    *::before,
-    *::after {
+    * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -37,15 +35,19 @@
       scroll-behavior: smooth;
     }
 
+    html[dir="rtl"] body {
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    html[dir="ltr"] body {
+      font-family: 'Nunito', sans-serif;
+    }
+
     body {
-      font-family: 'Zain', sans-serif;
       background: var(--cream);
       color: var(--charcoal);
       overflow-x: hidden;
-    }
-
-    body.lang-en {
-      font-family: 'Nunito', sans-serif;
+      line-height: 1.6;
     }
 
     img {
@@ -56,6 +58,8 @@
     button {
       cursor: pointer;
       font-family: inherit;
+      border: none;
+      background: none;
     }
 
     a {
@@ -63,849 +67,276 @@
       color: inherit;
     }
 
-    /* ===== LANGUAGE SYSTEM ===== */
-    /* Hide English elements by default when not in English mode */
-    body:not(.lang-en) .lang-en {
-      display: none !important;
-    }
-
-    /* Hide Arabic elements when in English mode */
-    body.lang-en .lang-ar {
-      display: none !important;
-    }
-
-    /* ===== LANGUAGE TOGGLE (hero overlay, kept for hero section only) ===== */
-    .lang-toggle {
+    /* Loader */
+    #loader {
       position: fixed;
-      top: 20px;
-      left: 20px;
-      z-index: 2000;
+      inset: 0;
+      background: var(--cream);
       display: flex;
-      background: rgba(255, 255, 255, 0.12);
-      border-radius: 30px;
-      padding: 4px;
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      gap: 2px;
-      transition: opacity 0.3s ease;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s;
     }
 
-    .lang-toggle.hidden-by-nav {
+    #loader.hidden {
       opacity: 0;
       pointer-events: none;
     }
 
-    [dir="ltr"] .lang-toggle {
-      left: auto;
-      right: 20px;
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--border);
+      border-top-color: var(--orange);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
     }
 
-    .lang-toggle .lang-btn {
-      padding: 6px 16px;
-      border-radius: 24px;
-      border: none;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 13px;
-      font-weight: 700;
-      transition: all 0.25s ease;
-      cursor: pointer;
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
 
-    .lang-toggle .lang-btn.active {
-      background: var(--orange);
-      color: white;
-    }
-
-    /* ===== NAV RIGHT GROUP (lang-pill + icon buttons) ===== */
-    .nav-right {
+    /* Navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      padding: 12px 20px;
       display: flex;
       align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
     }
 
-    .lang-pill {
+    .nav-logo {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--maroon);
       display: flex;
-      background: #f0f0f0;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-logo span {
+      color: var(--orange);
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .nav-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--maroon);
+      font-size: 1.2rem;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover {
+      background: var(--maroon);
+      color: var(--white);
+    }
+
+    .lang-toggle {
+      display: flex;
+      background: var(--cream);
       border-radius: 20px;
-      padding: 2px;
+      padding: 4px;
       gap: 2px;
     }
 
-    .lang-pill .lang-btn {
-      padding: 4px 10px;
+    .lang-btn {
+      padding: 6px 12px;
       border-radius: 16px;
-      border: none;
       font-size: 12px;
       font-weight: 700;
-      cursor: pointer;
-      background: transparent;
       color: #666;
       transition: all 0.2s;
     }
 
-    .lang-pill .lang-btn.active {
+    .lang-btn.active {
       background: var(--orange);
-      color: white;
+      color: var(--white);
     }
 
-    .nav-icon-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 1px solid #eee;
-      background: white;
+    /* Categories */
+    .categories {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--maroon);
-      font-size: 1rem;
-      transition: all 0.2s;
+      overflow-x: auto;
+      gap: 10px;
+      padding: 15px 20px;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 62px;
+      z-index: 90;
+      scrollbar-width: none;
     }
 
-    .nav-icon-btn:hover {
-      background: var(--maroon);
-      color: white;
-      border-color: var(--maroon);
+    .categories::-webkit-scrollbar {
+      display: none;
     }
 
-    /* ===== HERO ===== */
-    #hero {
-      position: relative;
-      min-height: 100vh;
-      background: var(--maroon);
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-      padding: 100px 48px 80px;
-    }
-
-    .hero-bg {
-      position: absolute;
-      inset: 0;
-      opacity: 0.04;
-      background-image: radial-gradient(ellipse 80px 40px at 100px 80px, #F16137 0%, transparent 70%),
-        radial-gradient(ellipse 60px 30px at 300px 200px, #F16137 0%, transparent 70%),
-        radial-gradient(ellipse 100px 50px at 600px 150px, #F16137 0%, transparent 70%);
-      background-size: 400px 300px;
-      pointer-events: none;
-    }
-
-    .hero-inner {
-      position: relative;
-      z-index: 2;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 64px;
-      max-width: 1280px;
-      margin: 0 auto;
-      width: 100%;
-      align-items: center;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(241, 97, 55, 0.15);
-      border: 1px solid rgba(241, 97, 55, 0.3);
-      color: var(--orange);
-      padding: 8px 20px;
-      border-radius: 30px;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 28px;
-    }
-
-    .brand-name {
-      display: block;
-      font-family: 'Nunito', sans-serif;
-      font-size: clamp(3.25rem, 8vw, 6rem);
-      font-weight: 900;
-      color: white;
-      letter-spacing: -2px;
-      line-height: 1;
-    }
-
-    .brand-sub {
-      display: block;
-      font-family: 'Nunito', sans-serif;
-      font-size: clamp(1rem, 2.5vw, 1.75rem);
-      font-weight: 800;
-      color: var(--orange);
-      letter-spacing: 8px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-
-    .brand-ar {
-      font-family: 'Zain', sans-serif;
-      font-size: clamp(1.125rem, 3vw, 2rem);
-      font-weight: 900;
-      color: rgba(255, 255, 255, 0.45);
-      margin-bottom: 20px;
-    }
-
-    .tagline-en {
-      font-family: 'Nunito', sans-serif;
-      font-size: clamp(0.875rem, 1.8vw, 1.25rem);
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.9);
-      margin-bottom: 4px;
-    }
-
-    .tagline-en em {
-      color: var(--orange);
-      font-style: normal;
-    }
-
-    .tagline-ar {
-      font-family: 'Zain', sans-serif;
-      font-size: clamp(0.8125rem, 1.6vw, 1.125rem);
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.65);
-      margin-bottom: 18px;
-    }
-
-    .hero-desc {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.6);
-      line-height: 1.7;
-      margin-bottom: 18px;
-      max-width: 480px;
-    }
-
-    .hero-desc.ar {
-      font-family: 'Zain', sans-serif;
-      font-size: 15px;
-    }
-
-    .trust-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 28px;
-    }
-
-    .trust-row span {
+    .cat-pill {
       display: flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: rgba(255, 255, 255, 0.85);
-      padding: 6px 13px;
+      padding: 8px 16px;
+      background: var(--cream);
       border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .trust-row span i {
-      color: var(--orange);
       font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: all 0.2s;
+      color: var(--charcoal);
+      border: 1px solid transparent;
     }
 
-    .hero-ctas {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+    .cat-pill:hover {
+      border-color: var(--orange);
     }
 
-    .btn-primary {
-      display: flex;
+    .cat-pill.active {
+      background: var(--maroon);
+      color: var(--white);
+    }
+
+    .cat-pill i {
+      font-size: 1.1rem;
+    }
+
+    /* Hero */
+    .hero {
+      background: var(--maroon);
+      color: var(--white);
+      padding: 60px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.05;
+      background-image: radial-gradient(circle, var(--orange) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      opacity: 0.8;
+      margin-bottom: 25px;
+    }
+
+    .hero-btn {
+      display: inline-flex;
       align-items: center;
       gap: 8px;
       background: var(--orange);
-      color: white;
-      border: none;
-      padding: 13px 26px;
-      border-radius: 13px;
-      font-size: 14px;
+      color: var(--white);
+      padding: 12px 28px;
+      border-radius: 30px;
       font-weight: 800;
-      transition: all 0.3s ease;
-      box-shadow: 0 8px 24px rgba(241, 97, 55, 0.35);
+      font-size: 1rem;
+      box-shadow: 0 8px 20px rgba(241, 97, 55, 0.3);
+      transition: all 0.3s;
     }
 
-    .btn-primary:hover {
-      background: #d94f26;
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(241, 97, 55, 0.45);
+    .hero-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 25px rgba(241, 97, 55, 0.4);
     }
 
-    .btn-outline {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: transparent;
-      color: white;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      padding: 11px 22px;
-      border-radius: 13px;
-      font-size: 14px;
-      font-weight: 700;
-      transition: all 0.3s ease;
-    }
-
-    .btn-outline:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: white;
-      transform: translateY(-2px);
-    }
-
-    /* Floating cards */
-    .hero-right {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    @keyframes float {
-
-      0%,
-      100% {
-        transform: translateY(0) rotate(0deg);
-      }
-
-      33% {
-        transform: translateY(-14px) rotate(1.5deg);
-      }
-
-      66% {
-        transform: translateY(7px) rotate(-1deg);
-      }
-    }
-
-    .float-card {
-      background: white;
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-
-    .float-card-1 {
-      animation: float 7s ease-in-out infinite;
-      width: 78%;
-      align-self: flex-start;
-    }
-
-    .float-card-2 {
-      animation: float 7s ease-in-out infinite;
-      animation-delay: -2.5s;
-      width: 72%;
-      align-self: flex-end;
-    }
-
-    .float-card-3 {
-      animation: float 7s ease-in-out infinite;
-      animation-delay: -4.5s;
-      width: 65%;
-      align-self: center;
-    }
-
-    .float-card img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-    }
-
-    .float-card-label {
-      padding: 10px 14px;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--charcoal);
-    }
-
-    .float-card-label span {
-      display: block;
-      font-size: 11px;
-      color: #888;
-      font-family: 'Zain', sans-serif;
-    }
-
-    /* ===== STATS BAR ===== */
-    #stats {
-      background: var(--maroon);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 28px 48px;
-    }
-
-    .stats-inner {
-      max-width: 1280px;
+    /* Menu Section */
+    .menu-section {
+      padding: 30px 20px;
+      max-width: 1200px;
       margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      gap: 20px;
     }
 
-    .stat {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-
-    .stat-num {
-      font-family: 'Nunito', sans-serif;
-      font-size: 2.5rem;
+    .section-title {
+      font-size: 1.5rem;
       font-weight: 900;
-      color: var(--orange);
-      line-height: 1;
-    }
-
-    .stat-label {
-      font-size: 13px;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.6);
-      margin-top: 4px;
-    }
-
-    .stat-label.ar {
-      font-family: 'Zain', sans-serif;
-      font-size: 14px;
-    }
-
-    .stat-sep {
-      width: 1px;
-      height: 40px;
-      background: rgba(255, 255, 255, 0.2);
-      flex-shrink: 0;
-    }
-
-    /* ===== BESTSELLERS ===== */
-    #bestsellers {
-      background: var(--cream);
-      padding: 48px 0 36px;
-    }
-
-    .section-eyebrow {
+      color: var(--maroon);
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 0 48px;
-      margin-bottom: 22px;
     }
 
-    .section-eyebrow .title {
-      font-size: 1.375rem;
-      font-weight: 900;
-      color: var(--maroon);
-    }
-
-    .section-eyebrow .title.ar {
-      font-family: 'Zain', sans-serif;
-    }
-
-    .bestsellers-wrapper {
-      position: relative;
-      padding: 0 48px;
-    }
-
-    .bestsellers-scroll {
-      display: flex;
-      gap: 14px;
-      overflow-x: auto;
-      padding-bottom: 8px;
-      scroll-behavior: smooth;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    .bestsellers-scroll::-webkit-scrollbar {
-      display: none;
-    }
-
-    .bs-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 12px;
-      min-width: 270px;
-      max-width: 270px;
-      transition: all 0.25s ease;
-      flex-shrink: 0;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .bs-card:hover {
-      border-color: var(--orange);
-      box-shadow: 0 8px 24px rgba(241, 97, 55, 0.15);
-      transform: translateY(-3px);
-    }
-
-    .bs-img-wrap {
-      position: relative;
-      flex-shrink: 0;
-    }
-
-    .bs-img-wrap img {
-      width: 85px;
-      height: 85px;
-      border-radius: 12px;
-      object-fit: cover;
-    }
-
-    .bs-star {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background: var(--orange);
-      color: white;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-    }
-
-    .bs-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .bs-name {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--charcoal);
-      margin-bottom: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .bs-name.en {
-      font-family: 'Nunito', sans-serif;
-    }
-
-    .bs-name.ar {
-      font-family: 'Zain', sans-serif;
-      color: #777;
-      margin-bottom: 6px;
-    }
-
-    .bs-price {
-      font-family: 'Nunito', sans-serif;
-      font-size: 15px;
-      font-weight: 900;
+    .section-title i {
       color: var(--orange);
     }
 
-    .bs-price span {
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .scroll-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 50%;
-      width: 38px;
-      height: 38px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      z-index: 10;
-      transition: all 0.2s ease;
-      color: var(--maroon);
-    }
-
-    .scroll-arrow:hover {
-      background: var(--orange);
-      color: white;
-      border-color: var(--orange);
-    }
-
-    .scroll-arrow.left {
-      left: 4px;
-    }
-
-    .scroll-arrow.right {
-      right: 4px;
-    }
-
-    /* ===== STICKY NAV ===== */
-    #sticky-nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      background: white;
-      border-bottom: 1px solid var(--border);
-      height: 66px;
-      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
-      transform: translateY(-100%);
-      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      gap: 14px;
-    }
-
-    #sticky-nav.visible {
-      transform: translateY(0);
-    }
-
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
-    .nav-logo-text {
-      font-family: 'Nunito', sans-serif;
-      font-size: 1.1875rem;
-      font-weight: 900;
-      color: var(--maroon);
-    }
-
-    .nav-logo-icon {
-      font-size: 1.375rem;
-      color: var(--orange);
-    }
-
-    /* ===== CAT TABS WRAPPER (scrollable) ===== */
-    .cat-tabs-wrapper {
-      flex: 1;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      padding: 6px 4px;
-      min-width: 0;
-    }
-
-    .cat-tabs-wrapper::-webkit-scrollbar {
-      display: none;
-    }
-
-    .cat-tabs {
-      display: flex;
-      gap: 6px;
-      width: max-content;
-    }
-
-    .cat-tab {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      padding: 6px 10px;
-      min-width: 56px;
-      border-radius: 10px;
-      border: 1.5px solid #eee;
-      background: white;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-      color: var(--charcoal);
-    }
-
-    .cat-tab i {
-      font-size: 18px;
-    }
-
-    .cat-tab .tab-label {
-      font-size: 10px;
-      font-weight: 700;
-    }
-
-    .cat-tab .tab-count {
-      font-size: 9px;
-      background: #eee;
-      color: #888;
-      border-radius: 10px;
-      padding: 1px 5px;
-    }
-
-    .cat-tab.active {
-      background: #F16137;
-      border-color: #F16137;
-      color: white;
-    }
-
-    .cat-tab.active .tab-count {
-      background: rgba(255, 255, 255, 0.3);
-      color: white;
-    }
-
-    /* ===== MENU SECTIONS ===== */
-    .menu-section {
-      scroll-margin-top: 70px;
-    }
-
-    /* Tabbed display: only active section visible */
-    .menu-section {
-      display: none;
-    }
-
-    .menu-section.active-section {
-      display: block;
-    }
-
-    /* ===== CATEGORY HEADER (compact) ===== */
-    .cat-header {
-      padding: 20px 20px 16px;
-      text-align: center;
-      clip-path: none;
-      margin-bottom: 0;
-    }
-
-    .cat-header-maroon {
-      background: var(--maroon);
-    }
-
-    .cat-header-orange {
-      background: var(--orange);
-    }
-
-    .cat-header-inner {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      margin-bottom: 8px;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .cat-icon {
-      font-size: 32px;
-      color: rgba(255, 255, 255, 0.5);
-      flex-shrink: 0;
-    }
-
-    .cat-name-en {
-      font-family: 'Nunito', sans-serif;
-      font-size: 20px;
-      font-weight: 900;
-      color: white;
-      line-height: 1;
-      margin: 4px 0;
-    }
-
-    .cat-name-ar {
-      font-family: 'Zain', sans-serif;
-      font-size: 18px;
-      font-weight: 900;
-      color: rgba(255, 255, 255, 0.85);
-      margin: 0 0 8px;
-    }
-
-    .cat-intro,
-    .cat-intro.ar,
-    .cat-intro-en,
-    .cat-intro-ar {
-      font-size: 13px;
-      max-width: 600px;
-      margin: 0 auto 6px;
-      color: rgba(255, 255, 255, 0.8);
-      line-height: 1.6;
-      opacity: 0.85;
-    }
-
-    .cat-intro.ar,
-    .cat-intro-ar {
-      font-family: 'Zain', sans-serif;
-      font-size: 14px;
-    }
-
-    .cat-count {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 20px;
-      padding: 4px 12px;
-      font-size: 12px;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.9);
-      margin-top: 10px;
-    }
-
-    /* ===== MENU GRID (auto-fill, centered) ===== */
     .menu-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 16px;
-      padding: 20px 16px 32px;
-      max-width: 1140px;
-      margin: 0 auto;
-      box-sizing: border-box;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
     }
 
-    /* ===== MENU CARD SIZE CONSTRAINTS ===== */
-    .menu-card {
-      max-width: 340px;
-      width: 100%;
-      margin: 0 auto;
-      background: white;
-      border-radius: 20px;
+    /* Card */
+    .card {
+      background: var(--white);
+      border-radius: 16px;
       overflow: hidden;
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
+      box-shadow: var(--shadow);
+      transition: all 0.3s;
       display: flex;
       flex-direction: column;
+      border: 1px solid var(--border);
     }
 
-    .menu-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 24px 48px var(--shadow);
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
       border-color: var(--orange);
     }
 
-    .card-img-wrap {
-      height: 160px;
+    .card-img {
+      height: 180px;
       overflow: hidden;
       position: relative;
-      flex-shrink: 0;
+      background: #f0f0f0;
     }
 
-    .card-img-wrap img {
+    .card-img img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.5s ease;
+      transition: transform 0.5s;
     }
 
-    .menu-card:hover .card-img-wrap img {
-      transform: scale(1.08);
-    }
-
-    @keyframes shimmer {
-      0% {
-        background-position: -400px 0;
-      }
-
-      100% {
-        background-position: 400px 0;
-      }
-    }
-
-    .img-shimmer {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-      background-size: 400px 100%;
-      animation: shimmer 1.5s infinite;
-    }
-
-    .img-shimmer.gone {
-      display: none;
+    .card:hover .card-img img {
+      transform: scale(1.05);
     }
 
     .card-price {
@@ -913,16 +344,14 @@
       top: 10px;
       left: 10px;
       background: var(--maroon);
-      color: white;
-      padding: 5px 11px;
+      color: var(--white);
+      padding: 4px 12px;
       border-radius: 20px;
       font-size: 12px;
-      font-weight: 700;
-      z-index: 2;
-      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
     }
 
-    [dir="ltr"] .card-price {
+    html[dir="ltr"] .card-price {
       left: auto;
       right: 10px;
     }
@@ -933,396 +362,166 @@
       right: 10px;
       display: flex;
       gap: 4px;
-      flex-wrap: wrap;
-      z-index: 2;
-      max-width: 110px;
-      justify-content: flex-end;
     }
 
-    [dir="ltr"] .card-tags {
+    html[dir="ltr"] .card-tags {
       right: auto;
       left: 10px;
-      justify-content: flex-start;
     }
 
     .tag {
-      padding: 3px 7px;
-      border-radius: 20px;
-      font-size: 9px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 10px;
       font-weight: 700;
-      font-family: 'Nunito', sans-serif;
-      display: flex;
-      align-items: center;
-      gap: 2px;
-    }
-
-    .tag-new {
-      background: var(--orange);
-      color: white;
+      color: var(--white);
     }
 
     .tag-popular {
-      background: var(--maroon);
-      color: white;
-    }
-
-    .tag-spicy {
-      background: #E53935;
-      color: white;
+      background: var(--orange);
     }
 
     .tag-veg {
       background: #2E7D32;
-      color: white;
     }
 
-    .card-edit-btn {
-      display: none;
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      background: var(--orange);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 5px 10px;
-      font-size: 11px;
-      font-weight: 700;
-      z-index: 3;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .admin-active .card-edit-btn {
-      display: flex;
+    .tag-spicy {
+      background: #E53935;
     }
 
     .card-body {
-      padding: 12px;
+      padding: 15px;
       flex: 1;
       display: flex;
       flex-direction: column;
     }
 
-    .card-name-en {
-      font-family: 'Nunito', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
+    .card-name {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 5px;
       color: var(--charcoal);
-      margin-bottom: 3px;
     }
 
-    .card-name-ar {
-      font-family: 'Zain', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      color: #555;
-      margin-bottom: 7px;
-      direction: rtl;
-    }
-
-    .card-desc-en,
-    .card-desc-ar {
-      font-size: 11px;
-      color: #888;
-      line-height: 1.5;
+    .card-desc {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 15px;
+      flex: 1;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      margin-bottom: 9px;
     }
 
-    .card-desc-ar {
-      font-family: 'Zain', sans-serif;
-      direction: rtl;
-    }
-
-    .card-meta {
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-      padding-top: 9px;
-      border-top: 1px solid #F5F5F5;
-      margin-top: auto;
-    }
-
-    .meta-badge {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      color: var(--sage);
-      background: #EBF4F1;
-      padding: 3px 7px;
-      border-radius: 12px;
-      font-family: 'Nunito', sans-serif;
-    }
-
-    .section-divider {
-      height: 3px;
-      background: linear-gradient(90deg, var(--maroon), var(--orange), var(--sage));
-    }
-
-    /* ===== FOOTER ===== */
-    #footer {
-      background: var(--maroon);
-      color: white;
-      padding: 56px 48px 28px;
-    }
-
-    .footer-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-    }
-
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 44px;
-      margin-bottom: 44px;
-    }
-
-    .footer-logo {
-      font-family: 'Nunito', sans-serif;
-      font-size: 1.75rem;
-      font-weight: 900;
-      color: white;
-      margin-bottom: 3px;
-    }
-
-    .footer-logo span {
-      color: var(--orange);
-    }
-
-    .footer-tagline {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.5);
-      margin-bottom: 16px;
-    }
-
-    .footer-tagline.ar {
-      font-family: 'Zain', sans-serif;
-      font-size: 14px;
-    }
-
-    .footer-brand p {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.6);
-      line-height: 1.7;
-      margin-bottom: 16px;
-    }
-
-    .footer-brand p.ar {
-      font-family: 'Zain', sans-serif;
-      font-size: 14px;
-    }
-
-    .footer-trust {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .trust-item {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    .trust-item i {
-      color: var(--orange);
-      font-size: 15px;
-    }
-
-    .footer-col h4 {
-      font-family: 'Nunito', sans-serif;
-      font-size: 13px;
-      font-weight: 800;
-      color: white;
-      margin-bottom: 18px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .footer-col h4.ar {
-      font-family: 'Zain', sans-serif;
-      font-size: 15px;
-      text-transform: none;
-      letter-spacing: 0;
-    }
-
-    .footer-col ul {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .footer-col ul li a {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.6);
-      transition: color 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .footer-col ul li a:hover {
-      color: var(--orange);
-    }
-
-    .footer-col ul li a i {
-      font-size: 14px;
-    }
-
-    .footer-bottom {
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      padding-top: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    .footer-bottom p {
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.4);
-    }
-
-    .footer-social {
-      display: flex;
-      gap: 10px;
-    }
-
-    .footer-social a {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+    .card-wa {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 15px;
-      transition: all 0.2s ease;
+      gap: 8px;
+      background: #25D366;
+      color: var(--white);
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      width: 100%;
     }
 
-    .footer-social a:hover {
+    .card-wa:hover {
+      background: #1da851;
+      transform: translateY(-2px);
+    }
+
+    /* Admin Edit Button */
+    .card-edit {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
       background: var(--orange);
-      border-color: var(--orange);
-      color: white;
+      color: var(--white);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      display: none;
+      align-items: center;
+      gap: 4px;
+      z-index: 5;
     }
 
-    /* ===== OVERLAYS ===== */
-    .overlay-bg {
+    body.admin-active .card-edit {
+      display: flex;
+    }
+
+    /* Modals */
+    .modal-bg {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.55);
-      z-index: 3000;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 1000;
       align-items: center;
       justify-content: center;
+      padding: 20px;
     }
 
-    .overlay-bg.open {
+    .modal-bg.open {
       display: flex;
     }
 
-    .modal-box {
-      background: white;
-      border-radius: 22px;
-      padding: 32px;
-      width: 90%;
-      max-width: 480px;
-      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.35);
+    .modal {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 30px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
     }
 
-    .modal-box h2 {
-      font-family: 'Nunito', sans-serif;
-      font-size: 1.25rem;
+    .modal h2 {
+      font-size: 1.5rem;
       font-weight: 900;
       color: var(--maroon);
-      margin-bottom: 8px;
-    }
-
-    .modal-box p {
-      font-size: 13px;
-      color: #888;
       margin-bottom: 20px;
-    }
-
-    .input-row {
       display: flex;
+      align-items: center;
       gap: 10px;
-      margin-bottom: 18px;
     }
 
-    .styled-input {
-      flex: 1;
-      padding: 11px 14px;
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: #555;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
       border: 2px solid var(--border);
-      border-radius: 11px;
-      font-size: 14px;
+      border-radius: 10px;
+      font-size: 0.95rem;
       font-family: inherit;
       outline: none;
-      transition: border-color 0.2s ease;
+      transition: border 0.2s;
     }
 
-    .styled-input:focus {
+    .form-input:focus {
       border-color: var(--orange);
     }
 
-    textarea.styled-input {
-      min-height: 75px;
+    textarea.form-input {
+      min-height: 80px;
       resize: vertical;
-    }
-
-    .fg {
-      margin-bottom: 14px;
-    }
-
-    .fg label {
-      display: block;
-      font-size: 11px;
-      font-weight: 700;
-      color: #666;
-      margin-bottom: 5px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .btn-orange {
-      background: var(--orange);
-      color: white;
-      border: none;
-      padding: 11px 20px;
-      border-radius: 11px;
-      font-size: 14px;
-      font-weight: 700;
-      transition: background 0.2s ease;
-    }
-
-    .btn-orange:hover {
-      background: #d94f26;
-    }
-
-    .btn-gray {
-      background: none;
-      border: 1px solid var(--border);
-      padding: 11px 18px;
-      border-radius: 11px;
-      font-size: 14px;
-      color: #888;
-      transition: background 0.2s ease;
-    }
-
-    .btn-gray:hover {
-      background: var(--cream);
     }
 
     .modal-actions {
@@ -1331,1883 +530,466 @@
       margin-top: 20px;
     }
 
-    /* Search overlay */
-    #search-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 2500;
-      align-items: flex-start;
-      justify-content: center;
-      padding-top: 90px;
-    }
-
-    #search-overlay.open {
-      display: flex;
-    }
-
-    .search-box {
-      background: white;
-      border-radius: 20px;
-      padding: 22px;
-      width: 90%;
-      max-width: 540px;
-      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.3);
-    }
-
-    .search-input-row {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 11px 14px;
-      transition: border-color 0.2s ease;
-    }
-
-    .search-input-row:focus-within {
-      border-color: var(--orange);
-    }
-
-    .search-input-row i {
-      font-size: 1.125rem;
-      color: #aaa;
-    }
-
-    #searchInput {
+    .btn {
       flex: 1;
-      border: none;
-      outline: none;
-      font-size: 15px;
-      font-family: inherit;
-      color: var(--charcoal);
-      background: transparent;
-    }
-
-    .close-search-btn {
-      background: none;
-      border: none;
-      font-size: 1.25rem;
-      color: #aaa;
-      padding: 2px;
-    }
-
-    #searchResults {
-      margin-top: 14px;
-      max-height: 380px;
-      overflow-y: auto;
-    }
-
-    .search-item {
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px;
-      border-radius: 11px;
-      transition: background 0.15s ease;
-      cursor: pointer;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
     }
 
-    .search-item:hover {
+    .btn-primary {
+      background: var(--orange);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background: #d94f26;
+    }
+
+    .btn-secondary {
       background: var(--cream);
-    }
-
-    .search-item img {
-      width: 48px;
-      height: 48px;
-      border-radius: 8px;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-
-    .search-item-info h4 {
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .search-item-info p {
-      font-size: 11px;
-      color: #888;
-    }
-
-    .search-item-price {
-      margin-right: auto;
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--orange);
-      font-family: 'Nunito', sans-serif;
-    }
-
-    [dir="ltr"] .search-item-price {
-      margin-right: 0;
-      margin-left: auto;
-    }
-
-    /* Admin bar */
-    .admin-bar {
-      display: none;
-      position: fixed;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--maroon);
-      color: white;
-      padding: 10px 22px;
-      border-radius: 30px;
-      font-size: 13px;
-      font-weight: 700;
-      z-index: 900;
-      gap: 10px;
-      align-items: center;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    }
-
-    .admin-bar.show {
-      display: flex;
-    }
-
-    .exit-btn {
-      background: rgba(255, 255, 255, 0.15);
-      border: none;
-      color: white;
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 700;
+      color: var(--charcoal);
+      border: 1px solid var(--border);
     }
 
     /* Toast */
-    #toast-container {
+    #toast {
       position: fixed;
-      bottom: 22px;
-      left: 22px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    [dir="ltr"] #toast-container {
-      left: auto;
-      right: 22px;
-    }
-
-    .toast {
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
       background: var(--maroon);
-      color: white;
-      padding: 12px 18px;
-      border-radius: 13px;
-      font-size: 13px;
-      font-weight: 600;
-      display: flex;
+      color: var(--white);
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      z-index: 2000;
+      display: none;
       align-items: center;
-      gap: 9px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      animation: slideUp 0.3s ease;
+      gap: 10px;
     }
 
-    .toast.success {
-      background: #2E7D32;
-    }
-
-    .toast.error {
-      background: #C62828;
+    #toast.show {
+      display: flex;
+      animation: slideUp 0.3s;
     }
 
     @keyframes slideUp {
       from {
-        transform: translateY(20px);
+        transform: translate(-50%, 20px);
         opacity: 0;
       }
 
       to {
-        transform: translateY(0);
+        transform: translate(-50%, 0);
         opacity: 1;
       }
     }
 
-    /* Back to top */
-    #btt {
-      position: fixed;
-      bottom: 22px;
-      right: 22px;
-      width: 46px;
-      height: 46px;
-      border-radius: 13px;
-      background: var(--orange);
-      color: white;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      box-shadow: 0 8px 24px rgba(241, 97, 55, 0.35);
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.3s ease;
-      z-index: 900;
-      pointer-events: none;
-    }
-
-    #btt.visible {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: all;
-    }
-
-    #btt:hover {
-      background: #d94f26;
-      transform: translateY(-2px);
-    }
-
-    #wa-btn {
-      position: fixed;
-      bottom: 22px;
-      right: 76px;
-      width: 46px;
-      height: 46px;
-      border-radius: 13px;
-      background: #25D366;
-      color: white;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
-      transition: all 0.3s ease;
-      z-index: 900;
-    }
-
-    #wa-btn:hover {
-      background: #1da851;
-      transform: translateY(-2px);
-    }
-
-    /* ===== HERO WAVE ===== */
-    .hero-wave {
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      right: 0;
-      line-height: 0;
-      pointer-events: none;
-    }
-
-    .hero-wave svg {
-      width: 100%;
-    }
-
-    /* ===== ENTRANCE ANIMATIONS (testimonials only) ===== */
-    .reveal {
-      opacity: 0;
-      transition: opacity 0.7s ease, transform 0.7s ease;
-      transform: translateY(22px);
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Menu cards: always visible, no reveal animation */
-    .menu-card {
-      opacity: 1 !important;
-      transform: none !important;
-    }
-
-    /* ===== TESTIMONIALS ===== */
-    #testimonials {
-      background: var(--cream);
-      padding: 64px 48px;
-    }
-
-    .testimonials-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-    }
-
-    .testimonials-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 36px;
-    }
-
-    .testimonials-header .title {
-      font-size: 1.375rem;
-      font-weight: 900;
-      color: var(--maroon);
-    }
-
-    .testimonials-header .title.ar {
-      font-family: 'Zain', sans-serif;
-    }
-
-    .testimonials-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
-    }
-
-    .testi-card {
-      background: white;
-      border-radius: 20px;
-      padding: 26px;
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      box-shadow: 0 4px 20px rgba(74, 19, 36, 0.06);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .testi-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 16px 40px rgba(74, 19, 36, 0.12);
-    }
-
-    .testi-stars {
-      color: var(--orange);
-      font-size: 15px;
-      display: flex;
-      gap: 3px;
-    }
-
-    .testi-text {
-      font-size: 14px;
-      color: #555;
-      line-height: 1.75;
-      font-style: italic;
-      flex: 1;
-    }
-
-    .testi-text.ar {
-      font-family: 'Zain', sans-serif;
-      font-size: 15px;
-    }
-
-    .testi-author {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding-top: 12px;
-      border-top: 1px solid #F5F5F5;
-    }
-
-    .testi-avatar {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--maroon), var(--orange));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      color: white;
-      font-weight: 700;
-      font-family: 'Nunito', sans-serif;
-      flex-shrink: 0;
-    }
-
-    .testi-name {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--charcoal);
-    }
-
-    .testi-loc {
-      font-size: 11px;
-      color: #aaa;
-    }
-
-    /* WhatsApp order button on cards */
-    .card-wa-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: #25D366;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 7px 13px;
-      font-size: 12px;
-      font-weight: 700;
-      margin-top: 10px;
-      transition: background 0.2s ease, transform 0.2s ease;
-      font-family: inherit;
-      width: 100%;
-      justify-content: center;
-      cursor: pointer;
-    }
-
-    .card-wa-btn:hover {
-      background: #1da851;
-      transform: translateY(-1px);
-    }
-
-    .card-wa-btn i {
-      font-size: 14px;
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 1024px) {
-      .hero-inner {
-        grid-template-columns: 1fr;
-        gap: 36px;
-      }
-
-      .hero-right {
-        display: none;
-      }
-
-      .footer-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .testimonials-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
+    /* Responsive */
     @media (max-width: 768px) {
-
-      html,
-      body {
-        overflow-x: hidden !important;
-        width: 100%;
-      }
-
-      * {
-        max-width: 100%;
-        box-sizing: border-box;
-      }
-
-      /* Navbar */
-      #sticky-nav {
-        height: 56px !important;
-        padding: 0 8px !important;
-        gap: 4px !important;
-      }
-
-      .nav-logo img {
-        height: 30px !important;
-      }
-
-      .cat-tabs-wrapper {
-        padding: 3px 2px !important;
-      }
-
-      .cat-tab {
-        min-width: 52px !important;
-        max-width: 62px !important;
-        padding: 3px 5px !important;
-        height: 46px !important;
-        font-size: 9px !important;
-        gap: 1px !important;
-        flex-shrink: 0 !important;
-      }
-
-      .cat-tab i {
-        font-size: 15px !important;
-      }
-
-      .cat-tab .tab-label {
-        font-size: 8px !important;
-      }
-
-      .cat-tab .tab-count {
-        font-size: 8px !important;
-        padding: 1px 4px !important;
-      }
-
-      .nav-icon-btn {
-        width: 32px !important;
-        height: 32px !important;
-        font-size: 0.85rem !important;
-      }
-
-      .lang-pill .lang-btn {
-        padding: 3px 6px !important;
-        font-size: 11px !important;
-      }
-
-      /* Hero */
-      #hero {
-        padding: 22px 14px !important;
-        min-height: auto !important;
-      }
-
-      .hero-inner {
-        grid-template-columns: 1fr !important;
-        gap: 18px !important;
-      }
-
-      .hero-right,
-      .float-card {
-        display: none !important;
-      }
-
-      #hero h1,
-      .brand-ar {
-        font-size: clamp(18px, 5.5vw, 30px) !important;
-      }
-
-      .tagline-en,
-      .tagline-ar {
-        font-size: clamp(12px, 4vw, 15px) !important;
-      }
-
-      .hero-desc,
-      .hero-desc.ar {
-        font-size: clamp(11px, 3.5vw, 13px) !important;
-      }
-
-      .hero-badge {
-        font-size: 10px !important;
-        padding: 5px 10px !important;
-        flex-wrap: wrap !important;
-      }
-
-      .trust-row {
-        flex-direction: column !important;
-        gap: 7px !important;
-        margin-bottom: 16px !important;
-      }
-
-      .trust-row span {
-        width: 100% !important;
-        justify-content: center !important;
-      }
-
-      .hero-ctas {
-        flex-direction: column !important;
-        width: 100% !important;
-        gap: 8px !important;
-      }
-
-      .hero-ctas button,
-      .hero-ctas a {
-        width: 100% !important;
-        justify-content: center !important;
-        min-height: 44px !important;
-      }
-
-      /* Stats */
-      #stats {
-        padding: 18px 14px !important;
-      }
-
-      .stats-inner {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 12px !important;
-        width: 100% !important;
-      }
-
-      .stat-num {
-        font-size: 26px !important;
-      }
-
-      .stat-sep {
-        display: none !important;
-      }
-
-      /* Bestsellers */
-      #bestsellers {
-        padding: 24px 0 14px !important;
-      }
-
-      .section-eyebrow {
-        padding: 0 12px !important;
-        margin-bottom: 12px !important;
-      }
-
-      .bestsellers-wrapper {
-        padding: 0 12px !important;
-      }
-
-      .bs-card {
-        min-width: 185px !important;
-        max-width: 185px !important;
-      }
-
-      .scroll-arrow {
-        width: 38px !important;
-        height: 38px !important;
-      }
-
-      /* Category header */
-      .cat-header {
-        padding: 14px 12px 10px !important;
-      }
-
-      .cat-icon {
-        font-size: 22px !important;
-      }
-
-      .cat-name-en {
-        font-size: 16px !important;
-      }
-
-      .cat-name-ar {
-        font-size: 15px !important;
-      }
-
-      .cat-intro,
-      .cat-intro.ar,
-      .cat-intro-en,
-      .cat-intro-ar {
-        font-size: 11px !important;
-      }
-
-      /* Menu grid */
-      .menu-grid {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
-        gap: 12px !important;
-        padding: 14px 12px 24px !important;
-      }
-
-      .menu-card {
-        max-width: 100% !important;
-        margin: 0 !important;
-      }
-
-      .card-img-wrap {
-        height: 140px !important;
-      }
-
-      /* Testimonials */
-      #testimonials {
-        padding: 24px 12px !important;
-      }
-
-      .testimonials-grid {
-        grid-template-columns: 1fr !important;
-        gap: 12px !important;
-      }
-
-      .testi-card {
-        padding: 14px !important;
-      }
-
-      .testi-text {
-        font-size: 13px !important;
-      }
-
-      /* Search */
-      #search-overlay {
-        padding-top: 60px !important;
-        padding-left: 10px !important;
-        padding-right: 10px !important;
-        align-items: flex-start !important;
-      }
-
-      .search-box {
-        width: 100% !important;
-        max-width: 100% !important;
-        border-radius: 14px !important;
-      }
-
-      /* Admin bar */
-      .admin-bar {
-        width: calc(100% - 28px) !important;
-        left: 14px !important;
-        transform: none !important;
-        padding: 8px 12px !important;
-        font-size: 11px !important;
-        gap: 6px !important;
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        box-sizing: border-box !important;
-      }
-
-      /* Edit modal */
-      #edit-modal .modal-box {
-        width: 100% !important;
-        height: 100% !important;
-        max-width: 100% !important;
-        max-height: 100vh !important;
-        border-radius: 0 !important;
-        margin: 0 !important;
-        padding: 16px !important;
-        box-sizing: border-box !important;
-        display: flex !important;
-        flex-direction: column !important;
-        overflow-y: auto !important;
-      }
-
-      .input-row,
-      .modal-actions,
-      .form-row {
-        flex-direction: column !important;
-        display: flex !important;
-        gap: 10px !important;
-      }
-
-      .input-row *,
-      .modal-actions *,
-      .form-row * {
-        width: 100% !important;
-        box-sizing: border-box !important;
-      }
-
-      #edit-modal .fg input,
-      #edit-modal .fg textarea {
-        width: 100% !important;
-        box-sizing: border-box !important;
-      }
-
-      /* Footer */
-      #footer {
-        padding: 26px 12px 16px !important;
-      }
-
-      .footer-grid {
-        grid-template-columns: 1fr !important;
-        gap: 20px !important;
-        text-align: center !important;
-      }
-
-      .footer-brand,
-      .footer-col {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        text-align: center !important;
-      }
-
-      .footer-logo img {
-        margin: 0 auto !important;
-      }
-
-      .footer-trust {
-        align-items: center !important;
-      }
-
-      .footer-col ul {
-        align-items: center !important;
-        padding: 0 !important;
-      }
-
-      .footer-bottom {
-        flex-direction: column !important;
-        align-items: center !important;
-        text-align: center !important;
-        padding-top: 12px !important;
-      }
-
-      .footer-social {
-        justify-content: center !important;
-      }
-
-      /* Floating buttons */
-      #btt {
-        bottom: 14px !important;
-        right: 14px !important;
-        width: 44px !important;
-        height: 44px !important;
-      }
-
-      #wa-btn {
-        bottom: 14px !important;
-        right: 66px !important;
-        width: 44px !important;
-        height: 44px !important;
-      }
-
-      #toast-container {
-        left: 10px !important;
-        bottom: 14px !important;
-        max-width: 200px !important;
-      }
-
-      /* Touch targets */
-      .card-wa-btn {
-        min-height: 40px !important;
-      }
-
-      #admin-panel .btn-orange,
-      #admin-panel .btn-gray {
-        min-height: 44px !important;
-      }
-
-      .lang-toggle {
-        top: 10px !important;
-        left: 10px !important;
-      }
-
-      [dir="ltr"] .lang-toggle {
-        right: 10px !important;
-        left: auto !important;
-      }
-    }
-
-    /* 2-column card grid on mobile */
-    @media (max-width: 640px) {
-      .menu-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 10px !important;
-        padding: 10px !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-      }
-
-      .menu-card {
-        max-width: 100% !important;
-        margin: 0 !important;
-      }
-
-      .card-img-wrap {
-        height: 120px !important;
-      }
-
-      .card-body {
-        padding: 8px !important;
-      }
-
-      .card-name-en {
-        font-size: 12px !important;
-      }
-
-      .card-name-ar {
-        font-size: 11px !important;
-        margin-bottom: 3px !important;
-      }
-
-      .card-desc-en,
-      .card-desc-ar {
-        display: none !important;
-      }
-
-      .card-price {
-        font-size: 11px !important;
-        padding: 3px 8px !important;
-      }
-
-      .meta-badge {
-        font-size: 10px !important;
-        padding: 2px 5px !important;
-      }
-
-      .card-wa-btn {
-        font-size: 11px !important;
-        padding: 5px 6px !important;
-        gap: 3px !important;
+      .navbar {
+        padding: 10px 15px;
       }
 
-      #hero {
-        padding: 18px 12px !important;
+      .categories {
+        padding: 10px 15px;
+        top: 58px;
       }
 
       .menu-section {
-        scroll-margin-top: 58px !important;
+        padding: 20px 15px;
       }
 
-      .cat-header {
-        padding: 12px 10px 8px !important;
-      }
-    }
-
-    /* Hide share button on narrow screens */
-    @media (max-width: 480px) {
-      .nav-share-btn {
-        display: none !important;
-      }
-
-      .lang-pill .lang-btn {
-        padding: 3px 6px !important;
-        font-size: 10px !important;
-      }
-    }
-
-    /* 1-column fallback for very small screens */
-    @media (max-width: 360px) {
       .menu-grid {
-        grid-template-columns: 1fr !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
       }
 
-      .menu-card {
-        max-width: 100% !important;
+      .card-img {
+        height: 140px;
       }
 
-      .cat-tab .tab-label {
-        display: none !important;
+      .card-body {
+        padding: 10px;
       }
 
-      .cat-tab {
-        min-width: 42px !important;
-        max-width: 42px !important;
-        width: 42px !important;
+      .card-name {
+        font-size: 0.95rem;
       }
 
-      .stat-num {
-        font-size: 20px !important;
+      .card-desc {
+        font-size: 0.8rem;
+        margin-bottom: 10px;
+      }
+
+      .card-wa {
+        padding: 8px;
+        font-size: 0.8rem;
+      }
+
+      .hero {
+        padding: 40px 15px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .menu-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 
-<body dir="rtl">
+<body>
 
-  <!-- LANGUAGE TOGGLE -->
-  <div class="lang-toggle" id="langToggle">
-    <button class="lang-btn active" onclick="setLang('ar')">عربي</button>
-    <button class="lang-btn" onclick="setLang('en')">EN</button>
+  <!-- Loader -->
+  <div id="loader">
+    <div style="text-align:center;">
+      <div class="spinner"></div>
+      <p style="margin-top:15px; font-weight:700; color:var(--charcoal);">جاري تحميل القائمة...</p>
+    </div>
   </div>
 
-  <!-- ======= HERO ======= -->
-  <section id="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-inner">
-      <div class="hero-left">
-        <div class="hero-badge"><i class="ti ti-award"></i> Est. 2013 · Jeddah, Saudi Arabia · مؤسسة ٢٠١٣</div>
-        <div style="margin-bottom:18px;">
-          <img src="logo.svg" alt="sasa's Bakery Logo" style="height:90px;width:auto;filter:brightness(0) invert(1);" />
-        </div>
-        <h1 style="clip:rect(0,0,0,0);position:absolute;width:1px;height:1px;overflow:hidden;">sasa's Bakery</h1>
-        <p class="brand-ar">ساساز بيكري</p>
-        <p class="tagline-en lang-en">The Art of European Baking <em>with a Saudi Soul</em></p>
-        <p class="tagline-ar lang-ar">فن المخبوزات الأوروبية بروح سعودية</p>
-        <p class="hero-desc lang-en">Premium baked goods crafted fresh every single morning — zero preservatives, pure
-          passion, delivered from our oven to your table.</p>
-        <p class="hero-desc ar lang-ar">مخبوزات فاخرة تُحضَّر طازجة كل صباح — بدون أي مواد حافظة، بشغف حقيقي، من مطبخنا
-          مباشرةً إلى طاولتك.</p>
-        <div class="trust-row">
-          <span><i class="ti ti-leaf"></i><span class="lang-ar">بدون مواد حافظة</span><span class="lang-en">No
-              Preservatives</span></span>
-          <span><i class="ti ti-clock"></i><span class="lang-ar">طازج يومياً</span><span class="lang-en">Baked Fresh
-              Daily</span></span>
-          <span><i class="ti ti-heart"></i><span class="lang-ar">سعودي الهوية منذ ٢٠١٣</span><span
-              class="lang-en">Saudi-Owned Since 2013</span></span>
-        </div>
-        <div class="hero-ctas">
-          <button onclick="scrollToMenu()" class="btn-primary"><i class="ti ti-menu-2"></i><span class="lang-ar">استعرض
-              القائمة</span><span class="lang-en">Explore Menu</span></button>
-          <button onclick="scrollToSection('boxes')" class="btn-outline"><i class="ti ti-package"></i><span
-              class="lang-ar">اطلب صندوقًا</span><span class="lang-en">Order a Box</span></button>
-        </div>
-      </div>
-      <div class="hero-right">
-        <div class="float-card float-card-1">
-          <img src="https://cdn.salla.sa/voyRv/DmtiVrU5O7GWvMb3szimaSwcB93YDzT0JdIIs7PK.jpg" alt="Classic Pretzel"
-            loading="lazy" />
-          <div class="float-card-label">Classic Pretzel<span>برتزل كلاسيك</span></div>
-        </div>
-        <div class="float-card float-card-2">
-          <img src="https://images.unsplash.com/photo-1559561853-08451507cbe7?w=400&h=250&fit=crop" alt="Artisan Dips"
-            loading="lazy" />
-          <div class="float-card-label">Artisan Dips<span>تغميسات يدوية</span></div>
-        </div>
-        <div class="float-card float-card-3">
-          <img src="https://images.unsplash.com/photo-1509722747041-616f39b57569?w=400&h=250&fit=crop"
-            alt="Gourmet Sandwiches" loading="lazy" />
-          <div class="float-card-label">Gourmet Sandwiches<span>ساندوتشات فاخرة</span></div>
-        </div>
-      </div>
-    </div>
-    <!-- wave divider -->
-    <div class="hero-wave">
-      <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-        <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="#FAF7F2" />
-      </svg>
-    </div>
-  </section>
-
-  <!-- ======= STATS BAR ======= -->
-  <section id="stats">
-    <div class="stats-inner">
-      <div class="stat"><span class="stat-num">11+</span><span class="stat-label lang-en">Years of
-          Excellence</span><span class="stat-label ar lang-ar">سنوات من التميز</span></div>
-      <div class="stat-sep"></div>
-      <div class="stat"><span class="stat-num">60+</span><span class="stat-label lang-en">Menu Items</span><span
-          class="stat-label ar lang-ar">صنف في القائمة</span></div>
-      <div class="stat-sep"></div>
-      <div class="stat"><span class="stat-num">0</span><span class="stat-label lang-en">Preservatives</span><span
-          class="stat-label ar lang-ar">مواد حافظة</span></div>
-      <div class="stat-sep"></div>
-      <div class="stat"><span class="stat-num">100%</span><span class="stat-label lang-en">Fresh Daily</span><span
-          class="stat-label ar lang-ar">طازج يومياً</span></div>
-    </div>
-  </section>
-
-  <!-- ======= BESTSELLERS ======= -->
-  <section id="bestsellers">
-    <div class="section-eyebrow">
-      <i class="ti ti-star-filled" style="color:var(--orange);font-size:24px"></i>
-      <span class="title lang-ar ar">الأكثر طلباً</span>
-      <span class="title lang-en">Customer Favorites</span>
-    </div>
-    <div class="bestsellers-wrapper">
-      <button class="scroll-arrow left" onclick="scrollBS(-1)"><i class="ti ti-chevron-right"></i></button>
-      <div class="bestsellers-scroll" id="bsScroll"></div>
-      <button class="scroll-arrow right" onclick="scrollBS(1)"><i class="ti ti-chevron-left"></i></button>
-    </div>
-  </section>
-
-  <!-- ======= TESTIMONIALS ======= -->
-  <section id="testimonials">
-    <div class="testimonials-inner">
-      <div class="testimonials-header">
-        <i class="ti ti-quote" style="color:var(--orange);font-size:26px"></i>
-        <span class="title lang-ar ar">آراء عملاءنا</span>
-        <span class="title lang-en">What Our Customers Say</span>
-      </div>
-      <div class="testimonials-grid">
-
-        <div class="testi-card reveal">
-          <div class="testi-stars">
-            <i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i
-              class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i>
-          </div>
-          <p class="testi-text lang-en">"sasa's Bakery is truly the best in Jeddah. The pretzels are incredibly soft and
-            the dips are absolutely divine. I order every single week!"</p>
-          <p class="testi-text ar lang-ar">«ساساز بيكري هو الأفضل البرتزل طري بشكل جميل والتغميسات
-            رائعة. أطلب كل أسبوع!»</p>
-          <div class="testi-author">
-            <div class="testi-avatar">S</div>
-            <div>
-              <div class="testi-name"><span class="lang-ar">سارة العمري</span><span class="lang-en">Sara Al-Omari</span>
-              </div>
-              <div class="testi-loc"><span class="lang-ar">جدة</span><span class="lang-en">Jeddah</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="testi-card reveal">
-          <div class="testi-stars">
-            <i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i
-              class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i>
-          </div>
-          <p class="testi-text lang-en">"The Lozella jar is absolutely addictive — better than any store-bought spread.
-            The dates cardamom pretzel is a must-try masterpiece."</p>
-          <p class="testi-text ar lang-ar">«قورورة اللوزيلا مُدمِنة بكل معنى الكلمة — أفضل من أي منتج تجاري. وبرتزل
-            التمر والهيل تحفة ا.»</p>
-          <div class="testi-author">
-            <div class="testi-avatar">M</div>
-            <div>
-              <div class="testi-name"><span class="lang-ar">محمد الغامدي</span><span class="lang-en">Mohammed
-                  Al-Ghamdi</span></div>
-              <div class="testi-loc"><span class="lang-ar">جدة</span><span class="lang-en">Jeddah</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="testi-card reveal">
-          <div class="testi-stars">
-            <i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i
-              class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i>
-          </div>
-          <p class="testi-text lang-en">"Ordered a gift box for my family and they were amazed. The quality, packaging
-            and freshness are all top-notch. Will definitely order again!"</p>
-          <p class="testi-text ar lang-ar">«طلبت صندوق هدايا لعائلتي وذُهلوا. الجودة والتعبئة والطزاجة كلها ممتازة.
-            سأطلب بالتأكيد مجددًا!»</p>
-          <div class="testi-author">
-            <div class="testi-avatar">N</div>
-            <div>
-              <div class="testi-name"><span class="lang-ar">نورة الشهري</span><span class="lang-en">Noura
-                  Al-Shahri</span></div>
-              <div class="testi-loc"><span class="lang-ar">جدة</span><span class="lang-en">Jeddah</span></div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <div id="menu-start"></div>
-  <!-- ======= STICKY NAV ======= -->
-  <nav id="sticky-nav">
+  <!-- Navbar -->
+  <nav class="navbar">
     <div class="nav-logo">
-      <img src="logo.svg" alt="sasa's Bakery" style="height:38px;width:auto;" />
+      <i class="ti ti-bread" style="color:var(--orange)"></i>
+      <span>sasa's</span>
     </div>
-    <div class="cat-tabs-wrapper">
-      <div id="catTabs" class="cat-tabs"></div>
-    </div>
-    <div class="nav-right">
-      <!-- Language toggle as compact pill -->
-      <div class="lang-pill">
-        <button class="lang-btn" onclick="setLang('ar')">ع</button>
+    <div class="nav-actions">
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('ar')">ع</button>
         <button class="lang-btn" onclick="setLang('en')">EN</button>
       </div>
-      <!-- Action icons -->
-      <button class="nav-icon-btn" onclick="openSearch()" title="Search">
-        <i class="ti ti-search"></i>
-      </button>
-      <button class="nav-icon-btn nav-share-btn" onclick="shareMenu()" title="Share">
-        <i class="ti ti-share"></i>
-      </button>
-      <button class="nav-icon-btn" onclick="openAdmin()" title="Admin">
-        <i class="ti ti-settings"></i>
-      </button>
+      <button class="nav-btn" onclick="openAdmin()" title="Admin"><i class="ti ti-settings"></i></button>
     </div>
   </nav>
 
-  <!-- ======= MENU (rendered by JS) ======= -->
-  <main id="menu-container"></main>
+  <!-- Categories -->
+  <div class="categories" id="categories"></div>
 
-  <!-- ======= FOOTER ======= -->
-  <footer id="footer">
-    <div class="footer-inner">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <div class="footer-logo">
-            <img src="logo.svg" alt="sasa's Bakery"
-              style="height:52px;width:auto;filter:brightness(0) invert(1);margin-bottom:4px;" />
-          </div>
-          <div class="footer-tagline lang-en">Freshly baked. Tastefully shared.</div>
-          <div class="footer-tagline ar lang-ar">طازج يومياً. بشغف دائم.</div>
-          <p class="lang-en">Premium European-style bakery with a Saudi soul. Est. 2013 in Jeddah, Saudi Arabia.</p>
-          <p class="ar lang-ar">مخبزة أوروبية فاخرة بروح سعودية. تأسست ٢٠١٣ في جدة، المملكة العربية السعودية.</p>
-          <div class="footer-trust">
-            <div class="trust-item"><i class="ti ti-leaf"></i><span class="lang-ar">بدون مواد حافظة تمامًا</span><span
-                class="lang-en">Zero preservatives</span></div>
-            <div class="trust-item"><i class="ti ti-clock"></i><span class="lang-ar">طازج يومياً من الفرن</span><span
-                class="lang-en">Baked fresh every morning</span></div>
-            <div class="trust-item"><i class="ti ti-award"></i><span class="lang-ar">أكثر من ١١ سنة تميز</span><span
-                class="lang-en">11+ years of excellence</span></div>
-          </div>
-        </div>
-        <div class="footer-col">
-          <h4 class="lang-en">Quick Links</h4>
-          <h4 class="ar lang-ar">روابط سريعة</h4>
-          <ul>
-            <li><a href="#bread"><i class="ti ti-bread"></i><span class="lang-ar">خبز</span><span
-                  class="lang-en">Bread</span></a></li>
-            <li><a href="#savory"><i class="ti ti-pretzel"></i><span class="lang-ar">برتزل مالح</span><span
-                  class="lang-en">Savory Pretzels</span></a></li>
-            <li><a href="#sweet"><i class="ti ti-cookie"></i><span class="lang-ar">برتزل حلو</span><span
-                  class="lang-en">Sweet Pretzels</span></a></li>
-            <li><a href="#salads"><i class="ti ti-salad"></i><span class="lang-ar">سلطات</span><span
-                  class="lang-en">Salads</span></a></li>
-            <li><a href="#boxes"><i class="ti ti-package"></i><span class="lang-ar">صناديق</span><span
-                  class="lang-en">Boxes</span></a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4 class="lang-en">Contact Us</h4>
-          <h4 class="ar lang-ar">تواصل معنا</h4>
-          <ul>
-            <li><a href="https://wa.me/966535262625" target="_blank" rel="noopener"><i
-                  class="ti ti-brand-whatsapp"></i>+966 53 526 2625</a></li>
-            <li><a href="#"><i class="ti ti-map-pin"></i><span class="lang-ar">جدة، حي الصفا شارع النهضة</span><span
-                  class="lang-en">Jeddah, Saudi Arabia</span></a></li>
-            <li><a href="https://www.instagram.com/bakery.sasas/" target="_blank" rel="noopener"><i
-                  class="ti ti-brand-instagram"></i>@sasasbakery</a></li>
-            <li><a href="https://www.tiktok.com/@sasas.pretzels" target="_blank" rel="noopener"><i
-                  class="ti ti-brand-x"></i>@sasasbakery</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>© 2026 sasa's Bakery · ساساز بيكري · <span class="lang-ar">جميع الحقوق محفوظة</span><span class="lang-en">All
-            rights reserved</span></p>
-        <div class="footer-social">
-          <a href="https://www.instagram.com/bakery.sasas/" target="_blank" rel="noopener"><i
-              class="ti ti-brand-instagram"></i></a>
-          <a href="https://www.tiktok.com/@sasas.pretzels" target="_blank" rel="noopener"><i
-              class="ti ti-brand-tiktok"></i></a>
-          <a href="https://wa.me/966535262625" target="_blank" rel="noopener"><i class="ti ti-brand-whatsapp"></i></a>
-          <a href="https://www.snapchat.com/@sasas.pretzels" target="_blank" rel="noopener"><i
-              class="ti ti-brand-snapchat"></i></a>
-        </div>
-      </div>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1 id="heroTitle">يركيب زاساس</h1>
+      <p id="heroDesc">مخبوزات أوروبية بنكهة سعودية. جزاط يومياً بدون مواد حافظة.</p>
+      <button class="hero-btn" onclick="document.getElementById('menu').scrollIntoView({behavior:'smooth'})">
+        <i class="ti ti-menu-2"></i>
+        <span id="heroBtn">تصفح القائمة</span>
+      </button>
     </div>
-  </footer>
+  </section>
 
-  <!-- ======= ADMIN PANEL ======= -->
-  <div class="overlay-bg" id="admin-panel">
-    <div class="modal-box">
-      <h2><i class="ti ti-lock"></i> <span class="lang-ar">لوحة الإدارة</span><span class="lang-en">Admin Panel</span>
-      </h2>
-      <p class="lang-ar">أدخل كلمة المرور للوصول إلى وضع التحرير</p>
-      <p class="lang-en">Enter the password to access edit mode</p>
-      <div class="input-row">
-        <input type="password" id="adminPw" class="styled-input" placeholder="Password / كلمة المرور"
-          onkeydown="if(event.key==='Enter')adminLogin()" />
-        <button class="btn-orange" onclick="adminLogin()"><i class="ti ti-lock-open"></i></button>
-      </div>
-      <button class="btn-gray" style="width:100%" onclick="closeAdmin()"><span class="lang-ar">إلغاء</span><span
-          class="lang-en">Cancel</span></button>
-    </div>
-  </div>
+  <!-- Menu -->
+  <main id="menu" class="menu-section">
+    <h2 class="section-title"><i class="ti ti-utensils"></i> <span id="menuTitle">القائمة</span></h2>
+    <div class="menu-grid" id="menuGrid"></div>
+  </main>
 
-  <!-- Admin active bar -->
-  <div class="admin-bar" id="adminBar">
-    <i class="ti ti-edit"></i>
-    <span class="lang-ar">وضع الإدارة — انقر على بطاقة للتعديل</span>
-    <span class="lang-en">Admin mode — click any card to edit</span>
-    <button class="exit-btn" onclick="resetToDefaults()" style="background:rgba(229,57,53,0.85)" title="Reset to defaults"><i class="ti ti-refresh"></i></button>
-    <button class="exit-btn" onclick="exitAdmin()"><span class="lang-ar">خروج</span><span
-        class="lang-en">Exit</span></button>
-  </div>
-
-  <!-- ======= EDIT MODAL ======= -->
-  <div class="overlay-bg" id="edit-modal">
-    <div class="modal-box" style="max-width:540px;max-height:90vh;overflow-y:auto">
-      <h2><i class="ti ti-edit"></i> <span class="lang-ar">تعديل الصنف</span><span class="lang-en">Edit Item</span></h2>
-      <input type="hidden" id="editId" />
-      <div class="fg"><label>Name (EN)</label><input type="text" id="editNameEn" class="styled-input"
-          style="width:100%" /></div>
-      <div class="fg"><label>الاسم (عربي)</label><input type="text" id="editNameAr" class="styled-input"
-          style="width:100%" dir="rtl" /></div>
-      <div class="fg"><label>Description (EN)</label><textarea id="editDescEn" class="styled-input"
-          style="width:100%"></textarea></div>
-      <div class="fg"><label>الوصف (عربي)</label><textarea id="editDescAr" class="styled-input" style="width:100%"
-          dir="rtl"></textarea></div>
-      <div class="fg"><label>Price (SAR)</label><input type="number" id="editPrice" class="styled-input"
-          style="width:100%" /></div>
-      <!-- Image section: URL OR file upload -->
-      <div class="fg">
-        <label>Image URL <span style="color:#aaa;font-weight:400;font-size:10px">(or upload below)</span></label>
-        <input type="text" id="editImg" class="styled-input" style="width:100%" oninput="onImgUrlChange(this.value)" placeholder="https://..." />
-      </div>
-      <div class="fg">
-        <label>Upload Image <span style="color:#aaa;font-weight:400;font-size:10px">(replaces URL if selected)</span></label>
-        <input type="file" id="editImgFile" accept="image/*" style="display:block;margin-bottom:8px;font-size:13px" onchange="handleImageUpload(this)" />
-        <img id="edit-img-preview" src="" alt="preview" style="max-width:100%;max-height:140px;border-radius:10px;object-fit:cover;display:none;border:1px solid #eee" />
+  <!-- Admin Modal -->
+  <div class="modal-bg" id="adminModal">
+    <div class="modal">
+      <h2><i class="ti ti-lock"></i> <span id="adminTitle">لوحة التحكم</span></h2>
+      <div class="form-group">
+        <label id="pwLabel">كلمة المرور</label>
+        <input type="password" id="adminPw" class="form-input" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter')loginAdmin()">
       </div>
       <div class="modal-actions">
-        <button class="btn-orange" style="flex:1" onclick="saveEdit()"><i class="ti ti-check"></i> <span
-            class="lang-ar">حفظ</span><span class="lang-en">Save</span></button>
-        <button class="btn-gray" onclick="closeEditModal()"><span class="lang-ar">إلغاء</span><span
-            class="lang-en">Cancel</span></button>
+        <button class="btn btn-primary" onclick="loginAdmin()"><i class="ti ti-login"></i> <span
+            id="loginBtn">دخول</span></button>
+        <button class="btn btn-secondary" onclick="closeModal('adminModal')"><span id="cancelBtn">إلغاء</span></button>
       </div>
     </div>
   </div>
 
-  <!-- ======= SEARCH ======= -->
-  <div id="search-overlay">
-    <div class="search-box">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <strong style="font-size:15px;font-weight:700"><span class="lang-ar">بحث في القائمة</span><span
-            class="lang-en">Search Menu</span></strong>
-        <button class="close-search-btn" onclick="closeSearch()"><i class="ti ti-x"></i></button>
+  <!-- Edit Modal -->
+  <div class="modal-bg" id="editModal">
+    <div class="modal">
+      <h2><i class="ti ti-edit"></i> <span id="editTitle">تعديل المنتج</span></h2>
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label>الاسم (عربي)</label>
+        <input type="text" id="editNameAr" class="form-input" dir="rtl">
       </div>
-      <div class="search-input-row">
-        <i class="ti ti-search"></i>
-        <input type="search" id="searchInput" placeholder="ابحث... / Search..." oninput="doSearch(this.value)" />
+      <div class="form-group">
+        <label>Name (English)</label>
+        <input type="text" id="editNameEn" class="form-input" dir="ltr">
       </div>
-      <div id="searchResults"></div>
+      <div class="form-group">
+        <label>الوصف (عربي)</label>
+        <textarea id="editDescAr" class="form-input" dir="rtl"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Description (English)</label>
+        <textarea id="editDescEn" class="form-input" dir="ltr"></textarea>
+      </div>
+      <div class="form-group">
+        <label id="priceLabel">السعر (ريال)</label>
+        <input type="number" id="editPrice" class="form-input">
+      </div>
+      <div class="form-group">
+        <label>رابط الصورة</label>
+        <input type="text" id="editImg" class="form-input" placeholder="https://...">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="saveEdit()"><i class="ti ti-check"></i> <span
+            id="saveBtn">حفظ</span></button>
+        <button class="btn btn-secondary" onclick="closeModal('editModal')"><span id="cancelBtn2">إلغاء</span></button>
+      </div>
     </div>
   </div>
 
-  <!-- ======= UTILITIES ======= -->
-  <div id="toast-container"></div>
-  <button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top"><i
-      class="ti ti-arrow-up"></i></button>
-  <a href="https://wa.me/966535262625" id="wa-btn" target="_blank" rel="noopener" aria-label="WhatsApp"><i
-      class="ti ti-brand-whatsapp"></i></a>
+  <!-- Toast -->
+  <div id="toast"></div>
 
   <script>
-    /* ============================================================
-       MENU DATA
-    ============================================================ */
-    const DEFAULT_MENU_DATA = [
-      // BREAD
-      { id: 'br01', cat: 'bread', nameEn: 'Simit', nameAr: 'سميت', descEn: "A golden, sesame-crusted ring — crisp on the outside, soft and airy inside. Traditional Turkish bread coated with toasted sesame seeds.", descAr: 'مخبوزة ذهبية بطابع تقليدي. قشرة مقرمشة وداخل طري وهش.', price: 5, calories: 127, weight: 60, img: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'br02', cat: 'bread', nameEn: 'Focaccia Bread', nameAr: 'فوكاشيا', descEn: 'Fluffy premium Italian bread infused with olive oil, herbs, and a touch of sea salt.', descAr: 'فوكاشيا طري فاخر، منقوع بزيت الزيتون والأعشاب ولمسة من ملح البحر.', price: 5, calories: 120, img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'br03', cat: 'bread', nameEn: 'Seeds Bread', nameAr: 'خبز البذور', descEn: 'A hearty loaf packed with flaxseeds, oats, pumpkin seeds, and sunflower seeds.', descAr: 'غني ومغذٍّ، مليء ببذور الكتان والشوفان وبذور اليقطين وعباد الشمس.', price: 5, calories: 73, img: 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7b?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'br04', cat: 'bread', nameEn: 'Potato Bread', nameAr: 'خبز البطاطا', descEn: 'Soft and fluffy bread made with mashed potatoes, offering a light texture and slightly sweet flavor.', descAr: 'طري وهش، مصنوع من البطاطا المهروسة بنكهة خفيفة ومميزة.', price: 5, calories: 180, img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'br05', cat: 'bread', nameEn: 'Pretzel Classic', nameAr: 'برتزل كلاسيك', descEn: 'A warm and crispy pretzel with perfectly twisted dough. Light, flavorful, crafted in classic European style.', descAr: 'برتزل دافئ ومقرمش بعجينة ملتوية بشكل مثالي على الطريقة الأوروبية الكلاسيكية.', price: 6, calories: 117, weight: 65, img: 'https://images.unsplash.com/photo-1584736286279-0d85cc5b0937?w=400&h=300&fit=crop', tags: ['veg', 'popular'] },
-      { id: 'br06', cat: 'bread', nameEn: 'Ciabatta', nameAr: 'تشيباتا', descEn: 'Italian bread with a crisp crust and soft airy heart — perfect for sandwiches or served with dips.', descAr: 'خبز إيطالي بقشرة مقرمشة وقلب طري وهش، مثالي للساندوتشات أو مع التغميسات.', price: 5, calories: 200, img: 'https://images.unsplash.com/photo-1586444248879-bc604bc77f90?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'br07', cat: 'bread', nameEn: 'Savory Rusk', nameAr: 'شابورة مالحة', descEn: 'Crispy, flavorful, and perfect as a light savory snack any time of day.', descAr: 'مقرمشة ولذيذة، مثالية كسناك خفيف مالح في أي وقت.', price: 5, calories: 80, weight: 35, img: 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&h=300&fit=crop', tags: ['veg'] },
-      // DIPS
-      { id: 'dp01', cat: 'dips', nameEn: 'Zaatar Balsamic', nameAr: 'زعتر بلسميك', descEn: "A bold modern blend of za'atar and balsamic vinegar with olive oil and sumac.", descAr: 'مزيج عصري من الزعتر وخل البلسميك مع زيت الزيتون والسماق.', price: 6, calories: 150, weight: 50, img: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'dp02', cat: 'dips', nameEn: 'Labnah Doggat Al Madina', nameAr: 'لبنة دقة المدينة', descEn: 'Creamy labnah blended with authentic Hijazi spices — a local classic reimagined.', descAr: 'لبنة كريمية ممزوجة بتوابل حجازية أصيلة، كلاسيكية محلية بأسلوب جديد.', price: 5, calories: 103, weight: 50, img: 'https://images.unsplash.com/photo-1559561853-08451507cbe7?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'dp03', cat: 'dips', nameEn: 'Tapinade', nameAr: 'تبينادا', descEn: 'A delicious olive blend with a French twist — black olives, artichoke, garlic, olive oil, lemon.', descAr: 'مزيج زيتون لذيذ بلمسة فرنسية — زيتون أسود وأرضي شوكي وثوم وزيت زيتون وليمون.', price: 6, calories: 60, weight: 50, img: 'https://images.unsplash.com/photo-1515443961218-a51367888e4b?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'dp04', cat: 'dips', nameEn: 'Sour Fruit French Cheese', nameAr: 'جبنة فرنسية بالفواكة الحامضة', descEn: 'A bold refreshing flavor — citrus fruit pieces, orange juice, olive oil, sea salt, vinegar.', descAr: 'نكهة جريئة ومنعشة — قطع حمضيات، عصير برتقال، زيت زيتون، ملح بحري وخل.', price: 7, calories: 95, weight: 50, img: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'dp05', cat: 'dips', nameEn: 'Cheese with Greens', nameAr: 'جبنة بالأعشاب الخضراء', descEn: 'Creamy texture with bold herbal flavor — white cheese, parsley, mint, olive oil, green onions.', descAr: 'قوام كريمي بنكهة عشبية غنية — جبنة بيضاء، بقدونس، نعناع، زيت زيتون وبصل أخضر.', price: 6, calories: 121, weight: 50, img: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a2d4?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'dp06', cat: 'dips', nameEn: 'Feta Garden Spicy', nameAr: 'فيتا جاردن سباي', descEn: 'Feta cheese with a spicy and balanced kick — feta, chili flakes, garlic, parsley, olive oil.', descAr: 'جبنة فيتا بحدة متوازنة — فيتا، رقائق الفلفل الحار، ثوم، بقدونس وزيت زيتون.', price: 5, calories: 150, weight: 50, img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop', tags: ['veg', 'spicy'] },
-      { id: 'dp07', cat: 'dips', nameEn: 'Feta Bell Pepper', nameAr: 'فيتا ملون', descEn: 'Soft feta blended with roasted bell pepper — colorful, creamy, and satisfying.', descAr: 'فيتا ناعمة ممزوجة بالفلفل الرومي المشوي — ملون، كريمي ومُشبِع.', price: 5, calories: 150, weight: 50, img: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'dp08', cat: 'dips', nameEn: 'Feta Olive', nameAr: 'فيتا زيتون', descEn: 'Creamy feta with carefully selected olive pieces — green and black olives with oregano.', descAr: 'فيتا كريمية مع قطع زيتون منتقاة — زيتون أخضر وأسود مع أوريغانو.', price: 5, calories: 140, weight: 50, img: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&h=300&fit=crop', tags: ['veg'] },
-      // JARS
-      { id: 'jr01', cat: 'jars', nameEn: 'Cubes & Herbs', nameAr: 'مكعبات وتوابل', descEn: 'Feta cubes marinated with premium herbs in olive oil — the perfect pantry jar.', descAr: 'مكعبات فيتا مع أعشاب فاخرة في زيت الزيتون — القورورة المثالية للمطبخ.', price: 48, weight: 200, img: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jr02', cat: 'jars', nameEn: 'Zaatar Balsamic', nameAr: 'زعتر بلسميك', descEn: "Our signature za'atar balsamic blend, jarred for home enjoyment.", descAr: 'مزيج الزعتر البلسميك المميز في قورورة للاستمتاع في المنزل.', price: 38, weight: 200, img: 'https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jr03', cat: 'jars', nameEn: 'Labnah Doggat Al Madina', nameAr: 'لبنة دقة المدينة', descEn: 'Authentic Hijazi-spiced labnah in a beautiful jar — a taste of the Hejaz region.', descAr: 'لبنة بالتوابل الحجازية الأصيلة في قورورة جميلة — نكهة الحجاز في بيتك.', price: 29, weight: 200, img: 'https://images.unsplash.com/photo-1571805529673-0f56b922b359?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jr04', cat: 'jars', nameEn: 'Tapinade', nameAr: 'تبينادا', descEn: 'French-style olive tapenade in a jar — perfect for entertaining or gifting.', descAr: 'تبينادا الزيتون بالأسلوب الفرنسي في قورورة — مثالية للضيافة أو الإهداء.', price: 38, weight: 200, img: 'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jr05', cat: 'jars', nameEn: 'Sour Fruit French Cheese', nameAr: 'جبنة فرنسية بالفواكة الحامضة', descEn: 'Bright citrus and French cheese spread in a beautiful jar.', descAr: 'جبنة فرنسية بالحمضيات في قورورة أنيقة.', price: 42, weight: 200, img: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jr06', cat: 'jars', nameEn: 'Cheese with Greens', nameAr: 'جبنة بالأعشاب الخضراء', descEn: 'Herbaceous white cheese spread jarred fresh.', descAr: 'جبنة بيضاء بالأعشاب الخضراء في قورورة طازجة.', price: 33, weight: 200, img: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jr07', cat: 'jars', nameEn: 'Feta Garden Spicy', nameAr: 'فيتا جاردن سباي', descEn: 'Spicy feta garden spread in a 200g jar.', descAr: 'فيتا حارة بالخضار في قورورة ٢٠٠ جرام.', price: 29, weight: 200, img: 'https://images.unsplash.com/photo-1506280754576-f6fa8a873550?w=400&h=300&fit=crop', tags: ['veg', 'spicy'] },
-      { id: 'jr08', cat: 'jars', nameEn: 'Feta Bell Pepper', nameAr: 'فيتا ملون', descEn: 'Colorful feta and bell pepper spread, beautifully jarred.', descAr: 'فيتا الفلفل الملون في قورورة جميلة.', price: 29, weight: 200, img: 'https://images.unsplash.com/photo-1517244683847-7456b63c5969?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jr09', cat: 'jars', nameEn: 'Feta Olive', nameAr: 'فيتا زيتون', descEn: 'Mediterranean feta and olive jar — simple, bold, classic.', descAr: 'قورورة فيتا وزيتون متوسطية — بسيطة، جريئة، كلاسيكية.', price: 29, weight: 200, img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jr10', cat: 'jars', nameEn: 'Lozella', nameAr: 'لوزيلا', descEn: 'Roasted hazelnuts and dark chocolate — our premium house-made Nutella alternative.', descAr: 'بندق محمص وشوكولاتة داكنة — بديلنا الفاخر المصنوع يدوياً للنوتيلا.', price: 55, weight: 200, img: 'https://images.unsplash.com/photo-1541189993359-7e82c7a58c24?w=400&h=300&fit=crop', tags: ['veg', 'popular'] },
-      { id: 'jr11', cat: 'jars', nameEn: 'Apple Cinnamon', nameAr: 'تفاح وقرفة', descEn: 'Warm apple and cinnamon spread — like autumn in a jar.', descAr: 'مربى التفاح والقرفة الدافئة — كأن الخريف في قورورة.', price: 37, weight: 200, img: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jr12', cat: 'jars', nameEn: 'Dates Cardamom and Cream', nameAr: 'تمرة قشطة وهيل', descEn: 'Rich dates with aromatic cardamom and silky cream — a Saudi-inspired sweet jar.', descAr: 'تمر غني مع هيل عطري وقشطة ناعمة — قورورة حلوة بإلهام سعودي.', price: 29, weight: 200, img: 'https://images.unsplash.com/photo-1605711285791-0219e80e43a3?w=400&h=300&fit=crop', tags: ['veg'] },
-      // SAVORY PRETZELS
-      { id: 'sp01', cat: 'savory', nameEn: 'Cheddar', nameAr: 'شيدر', descEn: 'Soft warm pretzel generously filled with creamy melted cheddar cheese.', descAr: 'برتزل دافئ وطري محشو بسخاء بجبنة شيدر كريمية ذائبة.', price: 7, calories: 150, img: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sp02', cat: 'savory', nameEn: 'Jalapeño Cheddar', nameAr: 'شيدر هالبينو', descEn: 'A bold blend of creamy cheddar and spicy jalapeños — for those who love heat.', descAr: 'مزيج جريء من الشيدر الكريمي والهالبينو الحار — لعشاق الحدة.', price: 7, calories: 90, img: 'https://images.unsplash.com/photo-1553909489-cd47e0907980?w=400&h=300&fit=crop', tags: ['veg', 'spicy'] },
-      { id: 'sp03', cat: 'savory', nameEn: 'Feta Olive', nameAr: 'فيتا زيتون', descEn: 'A tasty combination of creamy feta cheese and briny olives, twisted into pretzel perfection.', descAr: 'توليفة شهية من الفيتا الكريمية والزيتون المالح في برتزل مثالي.', price: 6, calories: 140, img: 'https://images.unsplash.com/photo-1584736286279-0d85cc5b0937?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sp04', cat: 'savory', nameEn: 'Feta Zaatar', nameAr: 'فيتا زعتر', descEn: "A flavorful blend of creamy feta cheese and aromatic za'atar spices.", descAr: 'مزيج نكهات من الفيتا الكريمية مع الزعتر العطري المميز.', price: 6, calories: 135, img: 'https://images.unsplash.com/photo-1594221708779-94832f4320d1?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sp05', cat: 'savory', nameEn: 'Feta Spinach', nameAr: 'فيتا سبانخ', descEn: 'A delicious combination of fresh spinach and creamy feta cheese.', descAr: 'توليفة شهية من السبانخ الطازجة والفيتا الكريمية.', price: 5, calories: 165, img: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sp06', cat: 'savory', nameEn: 'Feta Bell Pepper', nameAr: 'فيتا ملون', descEn: 'Crisp colorful bell peppers paired with creamy feta in a warm pretzel.', descAr: 'فلفل رومي ملون مقرمش مع فيتا كريمية في برتزل دافئ.', price: 7, calories: 150, img: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sp07', cat: 'savory', nameEn: 'Feta Garden Spicy', nameAr: 'فيتا جاردن سباي', descEn: 'A vibrant mix of fresh garden vegetables and creamy feta with a spicy kick.', descAr: 'مزيج حيوي من خضروات الحديقة الطازجة والفيتا الكريمية بلمسة حارة.', price: 7, calories: 140, img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop', tags: ['veg', 'spicy'] },
-      { id: 'sp08', cat: 'savory', nameEn: 'Trio', nameAr: 'تريو', descEn: 'A spectacular mix of three premium cheeses — mozzarella, kashkaval, and cheddar in every bite.', descAr: 'مزيج ثلاثي من أجود أنواع الجبن — موزاريلا وكشكوان وشيدر في كل قضمة.', price: 8, calories: 160, img: 'https://images.unsplash.com/photo-1600803907087-f56d462fd26b?w=400&h=300&fit=crop', tags: ['veg', 'popular'] },
-      // SWEET PRETZELS
-      { id: 'sw01', cat: 'sweet', nameEn: 'Pretzel Nutella', nameAr: 'برتزل نوتيال', descEn: 'A soft warm pretzel filled with rich creamy Nutella — the ultimate sweet indulgence.', descAr: 'برتزل طري ودافئ محشو بنوتيال كريمي غني — التدليل الحلو المثالي.', price: 9, calories: 165, img: 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&h=300&fit=crop', tags: ['veg', 'popular'] },
-      { id: 'sw02', cat: 'sweet', nameEn: 'Pretzel Apple Cinnamon', nameAr: 'برتزل التفاح والقرفة', descEn: 'Soft pretzel with warm apple cinnamon filling — cozy, comforting, and irresistible.', descAr: 'برتزل طري بحشوة التفاح والقرفة الدافئة — دافئ ومريح ولا يقاوَم.', price: 9, calories: 90, img: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sw03', cat: 'sweet', nameEn: 'Dates Cardamom and Cream', nameAr: 'برتزل التمر والقشطة', descEn: 'Rich dates blended with aromatic cardamom and smooth cream — a true Saudi-soul pastry.', descAr: 'تمر غني مع هيل عطري وقشطة ناعمة — معجنات بروح سعودية حقيقية.', price: 6, calories: 135, img: 'https://images.unsplash.com/photo-1605711285791-0219e80e43a3?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sw04', cat: 'sweet', nameEn: 'TWIST', nameAr: 'تويست', descEn: 'Soft twisted pastry generously coated with cinnamon sugar — sweet, spiced perfection.', descAr: 'معجنة ملتوية ناعمة مغطاة بسخاء بسكر القرفة — حلاوة ومثالية.', price: 10, calories: 135, img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sw05', cat: 'sweet', nameEn: 'English Cake', nameAr: 'انجلش كيك', descEn: 'Classic soft and buttery English pound cake — the perfect companion for your tea or coffee.', descAr: 'كيك إنجليزي كلاسيكي طري وزبداني — الرفيق المثالي للشاي أو القهوة.', price: 7, calories: 270, img: 'https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sw06', cat: 'sweet', nameEn: 'Muffin', nameAr: 'مفن', descEn: 'Soft and fluffy with a velvety crumb — the perfect pick-me-up with your favorite coffee.', descAr: 'طري وهش بقوام مخملي — المرافق المثالي لقهوتك المفضلة.', price: 10, calories: 321, img: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sw07', cat: 'sweet', nameEn: 'Waffle', nameAr: 'وافل', descEn: 'Freshly made waffle — crispy golden outside, soft and fluffy inside.', descAr: 'وافل طازج — ذهبي مقرمش من الخارج، طري وهش من الداخل.', price: 8, calories: 180, img: 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sw08', cat: 'sweet', nameEn: 'Pecan Pie', nameAr: 'بيكان باي', descEn: 'A rich buttery pie filled with caramelized pecans — indulgent, classic, and memorable.', descAr: 'فطيرة زبدانية غنية محشوة بالبيكان المكرمل — فاخرة وكلاسيكية لا تُنسى.', price: 26, calories: 240, img: 'https://images.unsplash.com/photo-1621955964441-c173e01c135b?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sw09', cat: 'sweet', nameEn: 'Chocolate Cookie', nameAr: 'بسكويت الشوكولاتة', descEn: 'Chewy and soft cookie loaded with rich chocolate chips — baked fresh daily.', descAr: 'بسكويت طري وقابل للمضغ محمّل بقطع الشوكولاتة الغنية — يُخبز طازجاً يومياً.', price: 10, calories: 280, img: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sw10', cat: 'sweet', nameEn: 'Cookie', nameAr: 'كوكيز', descEn: 'A deliciously sweet, golden and crispy classic cookie.', descAr: 'كوكيز كلاسيكي حلو وذهبي ومقرمش بامتياز.', price: 10, calories: 260, img: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&h=300&fit=crop', tags: ['veg'] },
-      // HOT SANDWICHES
-      { id: 'hs01', cat: 'hot-sandwich', nameEn: 'Chicken Pesto', nameAr: 'ساندوتش دجاج البيستو', descEn: 'Homemade chicken pesto sandwich — tender grilled chicken with fresh basil pesto sauce on our signature bread.', descAr: 'ساندوتش دجاج البيستو المنزلي — دجاج مشوي طري مع صوص البيستو الطازج على خبزنا المميز.', price: 13, calories: 187, img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=400&h=300&fit=crop', tags: ['popular'] },
-      { id: 'hs02', cat: 'hot-sandwich', nameEn: 'Omelette', nameAr: 'اومليت', descEn: 'A satisfying sandwich with a fluffy omelette, fresh vegetables, and cheese on toasted bread.', descAr: 'ساندوتش مُشبِع بأومليت هش وخضروات طازجة وجبنة على خبز محمص.', price: 9, calories: 175, img: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&h=300&fit=crop', tags: ['veg'] },
-      // COLD SANDWICHES
-      { id: 'cs01', cat: 'cold-sandwich', nameEn: 'Turkey and Cheese', nameAr: 'تركي وجبنة', descEn: 'Premium smoked turkey with slices of cheese — a light, sophisticated classic.', descAr: 'تركي مدخن فاخر مع شرائح جبنة — كلاسيكية خفيفة وراقية.', price: 13, img: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400&h=300&fit=crop' },
-      { id: 'cs02', cat: 'cold-sandwich', nameEn: 'Roast Beef and Cheese', nameAr: 'روست بيف وجبنة', descEn: 'Juicy roast beef with melted cheese — hearty, satisfying, and full of flavor.', descAr: 'روست بيف طازج مع جبنة ذائبة — شهي ومُشبِع وغني بالنكهة.', price: 13, img: 'https://images.unsplash.com/photo-1553909489-cd47e0907980?w=400&h=300&fit=crop' },
-      { id: 'cs03', cat: 'cold-sandwich', nameEn: 'Tuna', nameAr: 'تونة', descEn: 'Classic tuna sandwich with a creamy and flavorful mix — fresh, simple, perfect.', descAr: 'ساندوتش التونة الكلاسيكي بمزيج كريمي لذيذ — طازج وبسيط ومثالي.', price: 11, img: 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&h=300&fit=crop' },
-      { id: 'cs04', cat: 'cold-sandwich', nameEn: 'Mozzarella with Basil', nameAr: 'موزاريلا مع ريحان', descEn: 'A delightful Italian-inspired sandwich with creamy mozzarella and fragrant fresh basil.', descAr: 'ساندوتش بإلهام إيطالي بموزاريلا كريمية وريحان طازج عطري.', price: 12, img: 'https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'cs05', cat: 'cold-sandwich', nameEn: 'Italian Grilled Halloumi', nameAr: 'حلومي مشوي إيطالي', descEn: 'A savory Italian grilled halloumi sandwich — perfectly golden, crisp, and full of flavor.', descAr: 'ساندوتش الحلومي المشوي بالطريقة الإيطالية — ذهبي ومقرمش وغني بالنكهة.', price: 12, img: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'cs06', cat: 'cold-sandwich', nameEn: 'Labneh Daqqa', nameAr: 'لبنة دقة', descEn: 'Creamy labnah with Hijazi spices — a fresh sandwich with a refined local twist.', descAr: 'لبنة كريمية بتوابل حجازية — ساندوتش طازج بلمسة محلية راقية.', price: 9, img: 'https://images.unsplash.com/photo-1559561853-08451507cbe7?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'cs07', cat: 'cold-sandwich', nameEn: 'Labnah & Zaatar', nameAr: 'لبنة مع زعتر', descEn: 'Creamy labneh with aromatic thyme and a touch of balsamic glaze.', descAr: 'لبنة كريمية مع زعتر عطري ولمسة من صوص البلسميك.', price: 9, img: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'cs08', cat: 'cold-sandwich', nameEn: 'Halloumi and Labneh', nameAr: 'حلومي ولبنة', descEn: 'Salty halloumi paired with smooth labneh — a perfect balance of textures and flavors.', descAr: 'حلومي مالح مع لبنة ناعمة — توازن مثالي بين القوام والنكهة.', price: 11, img: 'https://images.unsplash.com/photo-1571805529673-0f56b922b359?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'cs09', cat: 'cold-sandwich', nameEn: 'Feta and Olive', nameAr: 'فيتا وزيتون', descEn: 'Creamy feta cheese with carefully selected olive slices — Mediterranean simplicity at its best.', descAr: 'جبنة فيتا كريمية مع شرائح زيتون منتقاة — بساطة متوسطية بأجمل صورها.', price: 9, img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'cs10', cat: 'cold-sandwich', nameEn: 'Kashkawan Cheese', nameAr: 'جبنة كشكوان', descEn: 'A creamy rich sandwich filled with melty Kashkawan cheese — unique and satisfying.', descAr: 'ساندوتش كريمي وغني بجبنة الكشكوان الذائبة — فريد ومُشبِع.', price: 11, img: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'cs11', cat: 'cold-sandwich', nameEn: 'Cheddar Cheese', nameAr: 'جبنة شيدر', descEn: 'A classic sandwich with smooth, bold cheddar cheese — simple and always satisfying.', descAr: 'ساندوتش كلاسيكي بجبنة شيدر ناعمة وجريئة — بسيط ومُشبِع دائماً.', price: 11, img: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'cs12', cat: 'cold-sandwich', nameEn: 'Feta Cheese', nameAr: 'جبنة فيتا', descEn: 'A light and tangy sandwich filled with creamy feta — clean, fresh, and effortless.', descAr: 'ساندوتش خفيف وحامض بفيتا كريمية — نظيف وطازج وخفيف.', price: 9, img: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'cs13', cat: 'cold-sandwich', nameEn: 'Spicy Feta Garden', nameAr: 'فيتا حار', descEn: 'A zesty and spicy sandwich with creamy feta and fresh garden vegetables.', descAr: 'ساندوتش نكهته لاذعة وحارة بالفيتا الكريمية وخضروات الحديقة الطازجة.', price: 9, img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop', tags: ['veg', 'spicy'] },
-      { id: 'cs14', cat: 'cold-sandwich', nameEn: 'Feta with Colored Bell Pepper', nameAr: 'فيتا مع فلفل ملون', descEn: 'A vibrant sandwich with creamy feta and colorful roasted bell peppers.', descAr: 'ساندوتش حيوي بالفيتا الكريمية والفلفل الرومي الملون المشوي.', price: 9, img: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'cs15', cat: 'cold-sandwich', nameEn: 'Balsamic Thyme', nameAr: 'بلسميك وزعتر', descEn: 'A sophisticated sandwich with rich balsamic glaze and aromatic fresh thyme.', descAr: 'ساندوتش راقٍ بصوص البلسميك الغني والزعتر الطازج العطري.', price: 12, img: 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&h=300&fit=crop', tags: ['veg'] },
-      // SALADS
-      { id: 'sl01', cat: 'salads', nameEn: 'Caesar Chicken Salad', nameAr: 'سلطة سيزر', descEn: 'Classic and rich — grilled chicken, parmesan cheese, creamy ranch sauce, and toasted crisp bread.', descAr: 'كلاسيكية وغنية — دجاج مشوي وبارميزان وصوص راينش كريمي وخبز محمص مقرمش.', price: 19, calories: 206, weight: 90, img: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=400&h=300&fit=crop', tags: ['popular'] },
-      { id: 'sl02', cat: 'salads', nameEn: 'Pasta Salad', nameAr: 'سلطة مكرونة', descEn: 'Colorful and refreshing — pasta, beans, carrots, green peas, and sweet corn.', descAr: 'ملونة ومنعشة — مكرونة وفاصولياء وجزر وبازلاء وذرة حلوة.', price: 11, calories: 145, weight: 180, img: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sl03', cat: 'salads', nameEn: 'Quinoa Salad', nameAr: 'سلطة كينوا', descEn: 'A light and healthy choice — quinoa, parsley, lettuce, arugula, mint, and raisins.', descAr: 'خيار خفيف وصحي — كينوا وبقدونس وخس وجرجير ونعناع وزبيب.', price: 20, calories: 170, weight: 165, img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop', tags: ['veg'] },
-      // JUICES
-      { id: 'jc01', cat: 'juices', nameEn: 'Fresh Orange Juice', nameAr: 'عصير برتقال طازج', descEn: 'Freshly squeezed and zesty — rich in Vitamin C, pure and natural.', descAr: 'طازج وحامض ومنعش — غني بفيتامين C، نقي وطبيعي.', price: 10, calories: 80, img: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jc02', cat: 'juices', nameEn: 'Lemon with Mint', nameAr: 'عصير ليمون بالنعناع', descEn: 'A refreshing blend of fresh lemon and mint — light, cooling, and revitalizing.', descAr: 'مزيج منعش من الليمون الطازج والنعناع — خفيف ومبرد ومنشط.', price: 10, calories: 90, img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jc03', cat: 'juices', nameEn: 'KDD Apple', nameAr: 'KDD تفاح', descEn: 'Classic apple juice — sweet, refreshing, and beloved.', descAr: 'عصير التفاح الكلاسيكي — حلو ومنعش ومحبوب.', price: 4, calories: 180, img: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jc04', cat: 'juices', nameEn: 'KDD Pineapple', nameAr: 'KDD أناناس', descEn: 'Tropical pineapple juice — sweet, fruity, and instantly energizing.', descAr: 'عصير الأناناس الاستوائي — حلو وفاكهي ومنعش على الفور.', price: 4, calories: 190, img: 'https://images.unsplash.com/photo-1589733955941-5eeaf752f6dd?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jc05', cat: 'juices', nameEn: 'KDD Mango', nameAr: 'KDD مانجو', descEn: 'Rich mango juice — smooth, tropical, and naturally sweet.', descAr: 'عصير المانجو الغني — ناعم واستوائي وحلو طبيعياً.', price: 4, calories: 200, img: 'https://images.unsplash.com/photo-1607532941433-304659e8198a?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jc06', cat: 'juices', nameEn: 'KDD Mixed Fruits', nameAr: 'KDD فواكه مشكلة', descEn: 'A vibrant mixed fruits juice — a burst of tropical goodness in every sip.', descAr: 'عصير فواكه مشكل منعش — لمسة استوائية في كل رشفة.', price: 4, calories: 185, img: 'https://images.unsplash.com/photo-1546173159-315724a31696?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'jc07', cat: 'juices', nameEn: 'Water', nameAr: 'ماء', descEn: 'Still or sparkling — pure, refreshing hydration.', descAr: 'عادي أو فوار — ترطيب نقي ومنعش.', price: 2, calories: 0, img: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=300&fit=crop', tags: ['veg'] },
-      // HOT COFFEE
-      { id: 'hc01', cat: 'hot-coffee', nameEn: 'Espresso', nameAr: 'اسبريسو', descEn: 'A bold and concentrated shot of premium espresso — intense, rich, and aromatic.', descAr: 'شوت قهوة اسبريسو مركّز فاخر — قوي وغني وعطري.', price: 8, calories: 5, img: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&h=300&fit=crop' },
-      { id: 'hc02', cat: 'hot-coffee', nameEn: 'Cappuccino', nameAr: 'كابتشينو', descEn: 'Perfectly balanced espresso with velvety steamed milk and a generous foam crown.', descAr: 'اسبريسو متوازن بشكل مثالي مع الحليب المبخر المخملي وتاج من الرغوة الكريمية.', price: 14, calories: 120, img: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop' },
-      { id: 'hc03', cat: 'hot-coffee', nameEn: 'Latte', nameAr: 'لاتيه', descEn: 'Smooth and creamy — espresso blended with silky steamed milk.', descAr: 'ناعم وكريمي — اسبريسو ممزوج بالحليب المبخر الحريري.', price: 14, calories: 150, img: 'https://images.unsplash.com/photo-1561047029-3000c68339ca?w=400&h=300&fit=crop' },
-      { id: 'hc04', cat: 'hot-coffee', nameEn: 'Flat White', nameAr: 'فلات وايت', descEn: 'Stronger than a latte — a double shot of espresso with microfoam steamed milk.', descAr: 'أقوى من اللاتيه — شوتان من الاسبريسو مع حليب مبخر بميكروفوم.', price: 15, calories: 130, img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=400&h=300&fit=crop' },
-      { id: 'hc05', cat: 'hot-coffee', nameEn: 'Turkish Coffee', nameAr: 'قهوة تركية', descEn: 'Authentic Turkish coffee — rich, aromatic, and prepared in the traditional way.', descAr: 'قهوة تركية أصيلة — غنية وعطرية ومُحضَّرة بالطريقة التقليدية.', price: 10, calories: 15, img: 'https://images.unsplash.com/photo-1578374173713-b29c5e1c9af8?w=400&h=300&fit=crop' },
-      { id: 'hc06', cat: 'hot-coffee', nameEn: 'Hot Chocolate', nameAr: 'شوكولاتة ساخنة', descEn: 'Indulgent and warming — rich dark chocolate blended into smooth creamy milk.', descAr: 'دافئة ومدللة — شوكولاتة داكنة غنية ممزوجة بالحليب الكريمي الناعم.', price: 14, calories: 250, img: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=400&h=300&fit=crop' },
-      // COLD COFFEE
-      { id: 'cc01', cat: 'cold-coffee', nameEn: 'Iced Latte', nameAr: 'آيس لاتيه', descEn: 'Chilled and refreshing — espresso over ice with cold milk.', descAr: 'بارد ومنعش — اسبريسو مع الثلج والحليب البارد.', price: 16, calories: 140, img: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop' },
-      { id: 'cc02', cat: 'cold-coffee', nameEn: 'Cold Brew', nameAr: 'كولد برو', descEn: 'Slow-steeped for 12 hours — smooth, low-acid, naturally sweet cold coffee.', descAr: 'مُنقَّع ببطء لـ ١٢ ساعة — قهوة باردة ناعمة وقليلة الحموضة وحلوة طبيعياً.', price: 18, calories: 20, img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400&h=300&fit=crop' },
-      { id: 'cc03', cat: 'cold-coffee', nameEn: 'Frappe', nameAr: 'فرابيه', descEn: 'Blended ice, espresso, and milk — a classic chilled coffee treat.', descAr: 'ثلج ممزوج باسبريسو وحليب — مشروب قهوة بارد كلاسيكي.', price: 18, calories: 230, img: 'https://images.unsplash.com/photo-1527761939622-933c7c5de64e?w=400&h=300&fit=crop' },
-      { id: 'cc04', cat: 'cold-coffee', nameEn: 'Iced Caramel Latte', nameAr: 'آيس لاتيه كراميل', descEn: 'Espresso and cold milk over ice, drizzled with rich caramel sauce.', descAr: 'اسبريسو وحليب بارد مع الثلج مع صوص الكراميل الغني.', price: 18, calories: 280, img: 'https://images.unsplash.com/photo-1585664811087-47f65abbad64?w=400&h=300&fit=crop' },
-      // SAUCES
-      { id: 'sc01', cat: 'sauces', nameEn: 'Pesto Sauce', nameAr: 'صوص البيستو', descEn: 'Fresh basil pesto — vibrant green, aromatic, and made in-house daily.', descAr: 'بيستو ريحان طازج — أخضر زاهٍ وعطري ومصنوع يومياً في المطبخ.', price: 6, img: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sc02', cat: 'sauces', nameEn: 'Ranch Sauce', nameAr: 'صوص رانش', descEn: 'Classic creamy ranch — cool, tangy, and the perfect dipping companion.', descAr: 'رانش كريمي كلاسيكي — بارد وحامض ومرافق مثالي للتغميس.', price: 4, img: 'https://images.unsplash.com/photo-1506280754576-f6fa8a873550?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sc03', cat: 'sauces', nameEn: 'Garlic Sauce', nameAr: 'صوص ثوم', descEn: 'Bold and creamy garlic sauce — rich in flavor, perfect for bread or grilled items.', descAr: 'صوص ثوم جريء وكريمي — غني بالنكهة، مثالي للخبز والمشويات.', price: 4, img: 'https://images.unsplash.com/photo-1605189852829-b70a6adcf2bf?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'sc04', cat: 'sauces', nameEn: 'Hot Sauce', nameAr: 'صوص حار', descEn: 'Fiery and punchy — a house-made hot sauce with real heat and great flavor.', descAr: 'ناري وحاد — صوص حار منزلي بحرارة حقيقية ونكهة رائعة.', price: 4, img: 'https://images.unsplash.com/photo-1541614101331-1a5a3a194e92?w=400&h=300&fit=crop', tags: ['veg', 'spicy'] },
-      // BOXES
-      { id: 'bx01', cat: 'boxes', nameEn: 'Bread Box', nameAr: 'صندوق الخبز', descEn: 'A curated selection of our finest freshly baked breads — perfect for sharing or gifting.', descAr: 'تشكيلة منتقاة من أجود خبزنا الطازج — مثالية للمشاركة أو الإهداء.', price: 45, img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop', tags: ['veg', 'popular'] },
-      { id: 'bx02', cat: 'boxes', nameEn: 'Dips Box', nameAr: 'صندوق التغميسات', descEn: 'Our signature collection of artisan dips — a full flavor journey in one box.', descAr: 'مجموعتنا المميزة من التغميسات اليدوية — رحلة نكهات كاملة في صندوق واحد.', price: 55, img: 'https://images.unsplash.com/photo-1559561853-08451507cbe7?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'bx03', cat: 'boxes', nameEn: 'Pretzel Box (Savory)', nameAr: 'صندوق البرتزل المالح', descEn: 'Six assorted savory pretzels — a crowd-pleaser for any gathering.', descAr: 'ستة برتزلات مالحة متنوعة — تُسعد الجميع في أي تجمع.', price: 42, img: 'https://images.unsplash.com/photo-1584736286279-0d85cc5b0937?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'bx04', cat: 'boxes', nameEn: 'Pretzel Box (Sweet)', nameAr: 'صندوق البرتزل الحلو', descEn: 'Six assorted sweet pretzels — a sweet treat box for dessert lovers.', descAr: 'ستة برتزلات حلوة متنوعة — صندوق حلويات لمحبي الحلو.', price: 48, img: 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'bx05', cat: 'boxes', nameEn: 'Mixed Bread & Dips Box', nameAr: 'صندوق الخبز والتغميسات', descEn: 'The best of both worlds — a selection of fresh breads with our finest dips.', descAr: 'أفضل ما في العالمين — تشكيلة من الخبز الطازج مع أجود تغميساتنا.', price: 65, img: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop', tags: ['veg', 'popular'] },
-      { id: 'bx06', cat: 'boxes', nameEn: "Jars Gift Box", nameAr: 'صندوق الهدايا (قوارير)', descEn: "A beautifully packaged gift box of premium jars — the ultimate sasa's gift.", descAr: 'صندوق هدايا معبأ بجمال من القوارير الفاخرة — أرقى هدية من ساساز.', price: 120, img: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop', tags: ['veg'] },
-      // MEALS
-      { id: 'ml01', cat: 'meals', nameEn: 'Sandwich Meal', nameAr: 'وجبة ساندوتش', descEn: 'Your choice of sandwich + side salad + juice — a complete satisfying meal.', descAr: 'ساندوتشك المفضل + سلطة جانبية + عصير — وجبة كاملة ومُشبِعة.', price: 25, img: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&h=300&fit=crop' },
-      { id: 'ml02', cat: 'meals', nameEn: 'Pretzel Meal', nameAr: 'وجبة البرتزل', descEn: 'Choose your pretzel + dip + drink — the perfect pretzel experience.', descAr: 'اختر برتزلك + تغميسة + مشروب — التجربة المثالية للبرتزل.', price: 20, img: 'https://images.unsplash.com/photo-1584736286279-0d85cc5b0937?w=400&h=300&fit=crop' },
-      { id: 'ml03', cat: 'meals', nameEn: 'Salad Meal', nameAr: 'وجبة السلطة', descEn: 'Fresh salad + bread + juice — a light, healthy, and complete meal.', descAr: 'سلطة طازجة + خبز + عصير — وجبة خفيفة وصحية ومتكاملة.', price: 28, img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop', tags: ['veg'] },
-      { id: 'ml04', cat: 'meals', nameEn: 'Breakfast Meal', nameAr: 'وجبة الفطور', descEn: 'Simit or focaccia + two dips + fresh juice — start your morning right.', descAr: 'سميت أو فوكاشيا + تغميستان + عصير طازج — ابدأ صباحك بشكل صحيح.', price: 30, img: 'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=400&h=300&fit=crop', tags: ['veg'] },
-    ];
-
-    /* ============================================================
-       LOCALSTORAGE PERSISTENCE
-    ============================================================ */
-    const STORAGE_KEY = 'sasa_menu_data';
-
-    function loadMenuData() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.warn('Corrupted localStorage data, using defaults');
-          localStorage.removeItem(STORAGE_KEY);
-        }
-      }
-      return JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));
-    }
-
-    function saveMenuData() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(menuData));
-      } catch (e) {
-        console.error('localStorage save failed (storage full?):', e);
-        showToast('خطأ في الحفظ — قد تكون الصورة كبيرة جداً | Save error — image may be too large', 'error');
-      }
-    }
-
-    function verifyStorage() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          console.log('✅ localStorage has', parsed.length, 'items');
-          console.log('Sample item:', parsed[0]);
-        } catch (e) {
-          console.warn('localStorage data is corrupted');
-        }
-      } else {
-        console.log('📋 localStorage is empty — using defaults');
-      }
-    }
-
-    function resetToDefaults() {
-      if (confirm('إعادة تعيين جميع بيانات القائمة إلى الأصل؟ لا يمكن التراجع.\nReset ALL menu data to original? This cannot be undone.')) {
-        localStorage.removeItem(STORAGE_KEY);
-        menuData = JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));
-        renderMenuSections();
-        renderCategoryTabs();
-        showToast('تم إعادة التعيين | Menu reset to defaults', 'success');
-      }
-    }
-
-    /* Image upload helpers */
-    let pendingImageData = null;
-
-    function handleImageUpload(input) {
-      const file = input.files[0];
-      if (!file) return;
-      if (file.size > 1.5 * 1024 * 1024) {
-        compressAndSaveImage(file);
-      } else {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          pendingImageData = e.target.result;
-          const preview = document.getElementById('edit-img-preview');
-          if (preview) preview.src = pendingImageData;
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function compressAndSaveImage(file) {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = () => {
-        const maxW = 600;
-        const ratio = Math.min(maxW / img.width, maxW / img.height);
-        canvas.width = Math.round(img.width * ratio);
-        canvas.height = Math.round(img.height * ratio);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        pendingImageData = canvas.toDataURL('image/jpeg', 0.75);
-        const preview = document.getElementById('edit-img-preview');
-        if (preview) preview.src = pendingImageData;
-        URL.revokeObjectURL(url);
-      };
-      img.onerror = () => { URL.revokeObjectURL(url); showToast('فشل تحميل الصورة | Image load failed', 'error'); };
-      img.src = url;
-    }
-
-    /* Working copy — always loaded from localStorage first */
-    let menuData = loadMenuData();
-
-    function buildCategoryCounts() {
-      const counts = {};
-      menuData.forEach(item => { counts[item.cat] = (counts[item.cat] || 0) + 1; });
-      return counts;
-    }
-    let categoryCounts = buildCategoryCounts();
-
-    let activeCategory = 'bread'; // default on load
-
-    function showCategory(cat) {
-      document.querySelectorAll('.menu-section').forEach(s => {
-        s.classList.remove('active-section');
-      });
-      const sec = document.getElementById('section-' + cat);
-      if (sec) sec.classList.add('active-section');
-      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.cat-tab[data-cat="' + cat + '"]').forEach(t => t.classList.add('active'));
-      activeCategory = cat;
-      const menuStart = document.getElementById('menu-start');
-      if (menuStart) {
-        window.scrollTo({ top: menuStart.offsetTop - 70, behavior: 'smooth' });
-      } else {
-        const container = document.getElementById('menu-container');
-        if (container) {
-          window.scrollTo({ top: container.offsetTop - 70, behavior: 'smooth' });
-        }
-      }
-    }
-
-    const categories = [
-      { id: 'bread', nameEn: 'Bread', nameAr: 'خبز', icon: 'ti-bread', introEn: 'Our breads are baked fresh every morning using premium European recipes with locally sourced ingredients.', introAr: 'تُخبز أرغفتنا طازجة كل صباح باستخدام وصفات أوروبية فاخرة ومكونات محلية منتقاة.' },
-      { id: 'dips', nameEn: 'Dips', nameAr: 'تغميسات', icon: 'ti-bowl', introEn: 'Our artisan dips are crafted fresh daily — bold Mediterranean flavors and local Hijazi classics.', introAr: 'تغميساتنا اليدوية تُحضَّر طازجة يومياً — نكهات متوسطية جريئة وكلاسيكيات حجازية محلية.' },
-      { id: 'jars', nameEn: 'Jars', nameAr: 'قوارير', icon: 'ti-bottle', introEn: 'Take your favorites home. Our premium jars are filled with the same artisan spreads we serve in-store.', introAr: 'اصطحب مفضلاتك للمنزل. قواريرنا الفاخرة مملوءة بنفس التغميسات اليدوية التي نقدمها في المتجر.' },
-      { id: 'savory', nameEn: 'Savory Pretzels', nameAr: 'برتزل مالح', icon: 'ti-pretzel', introEn: 'Warm, twisted, and generously filled — our savory pretzels are handcrafted in the European tradition.', introAr: 'دافئة وملتوية ومحشوة بسخاء — برتزلاتنا المالحة مصنوعة يدوياً في التقليد الأوروبي.' },
-      { id: 'sweet', nameEn: 'Sweet Pretzels', nameAr: 'برتزل حلو', icon: 'ti-cookie', introEn: 'Indulge in our sweet pretzel collection — from Nutella dreams to Saudi-inspired dates & cream.', introAr: 'انغمس في مجموعة برتزلاتنا الحلوة — من برتزل النوتيال الحالم إلى تمر وقشطة بإلهام سعودي.' },
-      { id: 'hot-sandwich', nameEn: 'Hot Sandwiches', nameAr: 'سندوتش ساخن', icon: 'ti-meat', introEn: 'Freshly assembled and served warm — our hot sandwiches are built on our signature breads.', introAr: 'مُجمَّعة طازجة وتُقدَّم ساخنة — ساندوتشاتنا الساخنة مبنية على خبزنا المميز.' },
-      { id: 'cold-sandwich', nameEn: 'Cold Sandwiches', nameAr: 'سندوتش بارد', icon: 'ti-sandwich', introEn: 'Light, fresh, and elegantly layered — our cold sandwiches feature premium ingredients.', introAr: 'خفيفة وطازجة ومرتبة بأناقة — ساندوتشاتنا الباردة تضم مكونات فاخرة.' },
-      { id: 'salads', nameEn: 'Salads', nameAr: 'سلطات', icon: 'ti-salad', introEn: 'Fresh, vibrant, and nourishing — our salads are assembled with the finest greens and dressings.', introAr: 'طازجة وحيوية ومغذية — سلطاتنا مُجمَّعة بعناية باستخدام أجود الخضر والصوصات.' },
-      { id: 'juices', nameEn: 'Juices', nameAr: 'عصائر', icon: 'ti-glass-full', introEn: 'Pure, fresh, and naturally energizing — from hand-squeezed citrus to curated juice selections.', introAr: 'نقية وطازجة ومنشطة طبيعياً — من الحمضيات المعصورة يدوياً إلى تشكيلات العصائر المنتقاة.' },
-      { id: 'hot-coffee', nameEn: 'Hot Coffee', nameAr: 'قهوة ساخنة', icon: 'ti-coffee', introEn: 'Expertly crafted espresso-based drinks — from bold single shots to velvety lattes.', introAr: 'مشروبات اسبريسو محضَّرة باحتراف — من الشوتات القوية إلى اللاتيه المخملي.' },
-      { id: 'cold-coffee', nameEn: 'Cold Coffee', nameAr: 'قهوة باردة', icon: 'ti-glass', introEn: 'Cool down with our premium cold coffee selection — iced lattes, cold brew, frappes.', introAr: 'برّد نفسك مع تشكيلة قهوتنا الباردة الفاخرة — آيس لاتيه وكولد برو وفرابيه.' },
-      { id: 'sauces', nameEn: 'Sauces', nameAr: 'صوصات', icon: 'ti-droplet', introEn: 'The perfect finishing touch — our house-made sauces complement every item on our menu.', introAr: 'اللمسة النهائية المثالية — صوصاتنا المنزلية تكمل كل صنف في قائمتنا.' },
-      { id: 'boxes', nameEn: 'Boxes', nameAr: 'صناديق', icon: 'ti-package', introEn: "Share the sasa's experience — curated boxes for gifting, gatherings, and special occasions.", introAr: 'شارك تجربة ساساز — صناديق منتقاة للإهداء والتجمعات والمناسبات الخاصة.' },
-      { id: 'meals', nameEn: 'Meals', nameAr: 'وجبات', icon: 'ti-tools-kitchen-2', introEn: 'Complete, balanced meals at great value — a sandwich, salad, or pretzel with a drink.', introAr: 'وجبات متكاملة ومتوازنة بقيمة رائعة — ساندوتش أو سلطة أو برتزل مع مشروب.' },
-    ];
-
-    const bestsellers = [
-      { nameEn: 'Pretzel Classic', nameAr: 'برتزل كلاسيك', price: 6, img: 'https://images.unsplash.com/photo-1584736286279-0d85cc5b0937?w=200&h=200&fit=crop' },
-      { nameEn: 'Trio Pretzel', nameAr: 'تريو', price: 8, img: 'https://images.unsplash.com/photo-1600803907087-f56d462fd26b?w=200&h=200&fit=crop' },
-      { nameEn: 'Chicken Pesto', nameAr: 'دجاج البيستو', price: 13, img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=200&h=200&fit=crop' },
-      { nameEn: 'Labnah Doggat Jar', nameAr: 'لبنة دقة (قورورة)', price: 29, img: 'https://images.unsplash.com/photo-1571805529673-0f56b922b359?w=200&h=200&fit=crop' },
-      { nameEn: 'Dates Cardamom Pretzel', nameAr: 'برتزل التمر والقشطة', price: 6, img: 'https://images.unsplash.com/photo-1605711285791-0219e80e43a3?w=200&h=200&fit=crop' },
-      { nameEn: 'Caesar Chicken Salad', nameAr: 'سلطة سيزر', price: 19, img: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=200&h=200&fit=crop' },
-    ];
+    // Supabase Config
+    const SUPABASE_URL = 'https://uclnhnvxmrlszixknne.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjbGRobnZ4bXJrbHN6aXhrbm5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4ODY1MzUsImV4cCI6MjA5ODQ2MjUzNX0.lQ2yQj5lj8Goa8raX2HOgvRbX7b-ZaAUy0bI8qtx-G8';
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // State
+    let menuData = [];
     let currentLang = localStorage.getItem('sasa_lang') || 'ar';
     let isAdmin = false;
 
-    // INIT
-    document.addEventListener('DOMContentLoaded', () => {
-      // menuData is already loaded from localStorage (or defaults) at script parse time
-      verifyStorage();
+    // Default Data (Used only if DB is empty)
+    const DEFAULT_MENU_DATA = [
+      { id: 'br01', cat: 'bread', nameEn: 'Simit', nameAr: 'سمط', descEn: "A golden, sesame-crusted ring.", descAr: 'خبز تركي تقليدي محمص بالسمسم.', price: 5, img: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'br02', cat: 'bread', nameEn: 'Pretzel Classic', nameAr: 'بريتزل كلاسيك', descEn: 'A warm and crispy pretzel.', descAr: 'بريتزل دافئ ومقرمش بعجينة مثالية.', price: 6, img: 'https://images.unsplash.com/photo-1584736286279-0d85cc5b0937?w=400&h=300&fit=crop', tags: ['veg', 'popular'] },
+      { id: 'dp01', cat: 'dips', nameEn: 'Zaatar Balsamic', nameAr: 'زعتر بلسمك', descEn: "A bold modern blend of za'atar and balsamic.", descAr: 'مزيج عصري من الزعتر والخل البلسمي.', price: 6, img: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop', tags: ['veg'] },
+      { id: 'sw01', cat: 'sweet', nameEn: 'Pretzel Nutella', nameAr: 'بريتزل نوتيلا', descEn: 'Soft pretzel filled with rich Nutella.', descAr: 'بريتزل طري محشو بنوتيلا الغنية.', price: 9, img: 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&h=300&fit=crop', tags: ['veg', 'popular'] }
+    ];
+
+    const categories = [
+      { id: 'all', nameEn: 'All', nameAr: 'الكل', icon: 'ti-grid-dots' },
+      { id: 'bread', nameEn: 'Bread', nameAr: 'مخبوزات', icon: 'ti-bread' },
+      { id: 'dips', nameEn: 'Dips', nameAr: 'غموسات', icon: 'ti-bowl' },
+      { id: 'sweet', nameEn: 'Sweet', nameAr: 'حلويات', icon: 'ti-cookie' }
+    ];
+
+    // Init
+    document.addEventListener('DOMContentLoaded', async () => {
       applyLang(currentLang);
-      renderBestsellers();
-      renderCategoryTabs();
-      renderMenuSections();
-      showCategory(activeCategory);
-      setupScroll();
-      setupReveal();
-      if (new URLSearchParams(window.location.search).get('admin') === 'true') openAdmin();
-      document.addEventListener('keydown', e => {
-        if (e.ctrlKey && e.shiftKey && e.key === 'A') { e.preventDefault(); openAdmin(); }
-        if (e.key === 'Escape') { closeSearch(); closeAdmin(); closeEditModal(); }
-      });
+      await loadMenu();
+      renderCategories();
+      renderMenu('all');
+      document.getElementById('loader').classList.add('hidden');
     });
 
-    // LANG
+    // Data Fetching
+    async function loadMenu() {
+      let { data, error } = await db.from('menu_items').select('*');
+      if (error) {
+        console.error('DB Error:', error);
+        showToast('خطأ في جلب البيانات', 'error');
+        menuData = DEFAULT_MENU_DATA;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        // Seed default data
+        const mapped = DEFAULT_MENU_DATA.map(item => ({
+          id: item.id, cat: item.cat, name_en: item.nameEn, name_ar: item.nameAr,
+          desc_en: item.descEn, desc_ar: item.descAr, price: item.price, img: item.img, tags: item.tags
+        }));
+        await db.from('menu_items').insert(mapped);
+        data = mapped;
+      }
+
+      menuData = data.map(row => ({
+        id: row.id, cat: row.cat, nameEn: row.name_en, nameAr: row.name_ar,
+        descEn: row.desc_en, descAr: row.desc_ar, price: row.price, img: row.img, tags: row.tags || []
+      }));
+    }
+
+    // Rendering
+    function renderCategories() {
+      const container = document.getElementById('categories');
+      container.innerHTML = categories.map(c => `
+    <button class="cat-pill ${c.id === 'all' ? 'active' : ''}" onclick="renderMenu('${c.id}', this)">
+      <i class="ti ${c.icon}"></i>
+      <span class="lang-ar">${c.nameAr}</span>
+      <span class="lang-en">${c.nameEn}</span>
+    </button>
+  `).join('');
+    }
+
+    function renderMenu(catId, btnEl) {
+      if (btnEl) {
+        document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+      }
+
+      const items = catId === 'all' ? menuData : menuData.filter(i => i.cat === catId);
+      const grid = document.getElementById('menuGrid');
+
+      if (items.length === 0) {
+        grid.innerHTML = `<p style="text-align:center; grid-column:1/-1; padding:40px; color:#888;">لا توجد منتجات</p>`;
+        return;
+      }
+
+      grid.innerHTML = items.map(item => {
+        const tagsHtml = (item.tags || []).map(t => {
+          if (t === 'popular') return `<span class="tag tag-popular">مميز</span>`;
+          if (t === 'veg') return `<span class="tag tag-veg">نباتي</span>`;
+          if (t === 'spicy') return `<span class="tag tag-spicy">حار</span>`;
+          return '';
+        }).join('');
+
+        const waMsg = encodeURIComponent(`أريد طلب ${item.nameAr} (${item.nameEn}) - ${item.price} ريال`);
+        const waUrl = `https://wa.me/966535262625?text=${waMsg}`;
+
+        return `
+      <div class="card" data-id="${item.id}">
+        <div class="card-img">
+          <img src="${item.img}" alt="${item.nameEn}" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+          <div class="card-price">${item.price} ر.س</div>
+          <div class="card-tags">${tagsHtml}</div>
+          <button class="card-edit" onclick="openEdit('${item.id}')"><i class="ti ti-edit"></i> تعديل</button>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name lang-ar">${item.nameAr}</h3>
+          <h3 class="card-name lang-en" style="display:none">${item.nameEn}</h3>
+          <p class="card-desc lang-ar">${item.descAr || ''}</p>
+          <p class="card-desc lang-en" style="display:none">${item.descEn || ''}</p>
+          <a href="${waUrl}" target="_blank" class="card-wa">
+            <i class="ti ti-brand-whatsapp"></i>
+            <span class="lang-ar">اطلب الآن</span>
+            <span class="lang-en" style="display:none">Order Now</span>
+          </a>
+        </div>
+      </div>
+    `;
+      }).join('');
+    }
+
+    // Language
     function setLang(lang) {
       currentLang = lang;
       localStorage.setItem('sasa_lang', lang);
       applyLang(lang);
     }
+
     function applyLang(lang) {
-      const body = document.body;
-      if (lang === 'en') {
-        document.documentElement.setAttribute('lang', 'en');
-        document.documentElement.setAttribute('dir', 'ltr');
-        body.setAttribute('dir', 'ltr');
-        body.classList.add('lang-en');
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-          if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'en'")) {
-            btn.classList.add('active');
-          } else {
-            btn.classList.remove('active');
-          }
-        });
-      } else {
-        document.documentElement.setAttribute('lang', 'ar');
-        body.classList.remove('lang-en');
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-          document.documentElement.setAttribute('dir', 'rtl');
-          body.setAttribute('dir', 'rtl');
-          if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'ar'")) {
-            btn.classList.add('active');
-          } else {
-            btn.classList.remove('active');
-          }
-        });
-      }
-    }
+      const html = document.documentElement;
+      html.setAttribute('lang', lang);
+      html.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
 
-    // BESTSELLERS
-    function renderBestsellers() {
-      document.getElementById('bsScroll').innerHTML = bestsellers.map(b => `
-    <div class="bs-card" onclick="findItem('${b.nameEn}')">
-      <div class="bs-img-wrap">
-        <img src="${b.img}" alt="${b.nameEn}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop'" />
-        <div class="bs-star"><i class="ti ti-star-filled"></i></div>
-      </div>
-      <div class="bs-info">
-        <div class="bs-name en lang-en">${b.nameEn}</div>
-        <div class="bs-name ar lang-ar">${b.nameAr}</div>
-        <div class="bs-price">${b.price} <span>SAR</span></div>
-      </div>
-    </div>`).join('');
-    }
+      document.querySelectorAll('.lang-ar').forEach(el => el.style.display = lang === 'ar' ? '' : 'none');
+      document.querySelectorAll('.lang-en').forEach(el => el.style.display = lang === 'en' ? '' : 'none');
 
-    // CATEGORY TABS
-    function renderCategoryTabs() {
-      const counts = buildCategoryCounts();
-      document.getElementById('catTabs').innerHTML = categories.map((c) => {
-        const count = counts[c.id] || 0;
-        const activeClass = c.id === activeCategory ? ' active' : '';
-        return `<button class="cat-tab${activeClass}" data-cat="${c.id}" onclick="showCategory('${c.id}')">
-          <i class="ti ${c.icon}"></i>
-          <span class="tab-label lang-ar">${c.nameAr}</span>
-          <span class="tab-label lang-en">${c.nameEn}</span>
-          <span class="tab-count">${count}</span>
-        </button>`;
-      }).join('');
-    }
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.trim() === (lang === 'ar' ? 'ع' : 'EN'));
+      });
 
-    // MENU SECTIONS
-    function renderMenuSections() {
-      const container = document.getElementById('menu-container');
-      container.innerHTML = categories.map((cat, i) => {
-        const items = menuData.filter(m => m.cat === cat.id);
-        if (!items.length) return '';
-        const hc = i % 2 === 0 ? 'cat-header-maroon' : 'cat-header-orange';
-        const isActive = cat.id === activeCategory ? ' active-section' : '';
-        return `<section class="menu-section${isActive}" id="section-${cat.id}" data-cat="${cat.id}">
-      <div class="cat-header ${hc}">
-        <div class="cat-header-inner">
-          <i class="ti ${cat.icon} cat-icon"></i>
-          <div>
-            <h2 class="cat-name-en lang-en">${cat.nameEn}</h2>
-            <h2 class="cat-name-ar lang-ar">${cat.nameAr}</h2>
-          </div>
-        </div>
-        <p class="cat-intro cat-intro-en lang-en">${cat.introEn}</p>
-        <p class="cat-intro cat-intro-ar ar lang-ar">${cat.introAr}</p>
-        <div class="cat-count"><i class="ti ti-stack"></i>${items.length} <span class="lang-ar">صنف</span><span class="lang-en">items</span></div>
-      </div>
-      <div class="menu-grid">${items.map(renderCard).join('')}</div>
-      <div class="section-divider"></div>
-    </section>`;
-      }).join('');
-      // Shimmer handling
-      container.querySelectorAll('.card-img-wrap img').forEach(img => {
-        const sh = img.nextElementSibling;
-        if (!sh) return;
-        if (img.complete && img.naturalWidth > 0) { sh.classList.add('gone'); }
-        else {
-          img.addEventListener('load', () => sh.classList.add('gone'));
-          img.addEventListener('error', () => { sh.classList.add('gone'); img.src = 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop'; });
-        }
+      // Update static texts
+      const texts = {
+        ar: { heroTitle: 'يركيب زاساس', heroDesc: 'مخبوزات أوروبية بنكهة سعودية. جزاط يومياً بدون مواد حافظة.', heroBtn: 'تصفح القائمة', menuTitle: 'القائمة', adminTitle: 'لوحة التحكم', pwLabel: 'كلمة المرور', loginBtn: 'دخول', cancelBtn: 'إلغاء', editTitle: 'تعديل المنتج', priceLabel: 'السعر (ريال)', saveBtn: 'حفظ', cancelBtn2: 'إلغاء' },
+        en: { heroTitle: "sasa's Bakery", heroDesc: 'European baking with a Saudi soul. Fresh daily, zero preservatives.', heroBtn: 'Explore Menu', menuTitle: 'Menu', adminTitle: 'Admin Panel', pwLabel: 'Password', loginBtn: 'Login', cancelBtn: 'Cancel', editTitle: 'Edit Item', priceLabel: 'Price (SAR)', saveBtn: 'Save', cancelBtn2: 'Cancel' }
+      };
+
+      Object.keys(texts[lang]).forEach(key => {
+        const el = document.getElementById(key);
+        if (el) el.textContent = texts[lang][key];
       });
     }
 
-    function renderCard(item) {
-      const tagMap = { new: '<span class="tag tag-new">NEW</span>', popular: '<span class="tag tag-popular"><i class="ti ti-flame"></i><span class="lang-ar">الأكثر طلباً</span><span class="lang-en">Popular</span></span>', spicy: '<span class="tag tag-spicy"><i class="ti ti-pepper"></i><span class="lang-ar">حار</span><span class="lang-en">Spicy</span></span>', veg: '<span class="tag tag-veg"><i class="ti ti-leaf"></i><span class="lang-ar">نباتي</span><span class="lang-en">Veg</span></span>' };
-      const tags = (item.tags || []).map(t => tagMap[t] || '').join('');
-      const meta = [item.calories ? `<span class="meta-badge"><i class="ti ti-flame"></i>${item.calories} kcal</span>` : '', item.weight ? `<span class="meta-badge"><i class="ti ti-scale"></i>${item.weight}g</span>` : ''].join('');
-      const waMsg = encodeURIComponent(`مرحباً! أريد أن أطلب: ${item.nameAr} (${item.nameEn}) - ${item.price} SAR`);
-      const waUrl = `https://wa.me/966535262625?text=${waMsg}`;
-      return `<div class="menu-card reveal" data-item-id="${item.id}">
-    <div class="card-tags">${tags}</div>
-    <div class="card-price">${item.price} SAR</div>
-    <div class="card-img-wrap">
-      <img src="${item.img}" alt="${item.nameEn}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop'" />
-      <div class="img-shimmer"></div>
-      <button class="card-edit-btn" onclick="openEditModal('${item.id}')"><i class="ti ti-edit"></i><span class="lang-ar">تعديل</span><span class="lang-en">Edit</span></button>
-    </div>
-    <div class="card-body">
-      <h3 class="card-name-en lang-en">${item.nameEn}</h3>
-      <p class="card-name-ar lang-ar">${item.nameAr}</p>
-      <p class="card-desc-en lang-en">${item.descEn || ''}</p>
-      <p class="card-desc-ar lang-ar">${item.descAr || ''}</p>
-      ${meta ? `<div class="card-meta">${meta}</div>` : ''}
-      <a href="${waUrl}" target="_blank" rel="noopener" class="card-wa-btn">
-        <i class="ti ti-brand-whatsapp"></i>
-        <span class="lang-ar">اطلب الآن</span><span class="lang-en">Order Now</span>
-      </a>
-    </div>
-  </div>`;
+    // Admin
+    function openAdmin() {
+      if (isAdmin) {
+        isAdmin = false;
+        document.body.classList.remove('admin-active');
+        showToast('تم الخروج من وضع التعديل', 'success');
+        return;
+      }
+      document.getElementById('adminModal').classList.add('open');
     }
 
-    // SCROLL
-    function setupScroll() {
-      const nav = document.getElementById('sticky-nav');
-      const hero = document.getElementById('hero');
-      const btt = document.getElementById('btt');
-      const langToggle = document.getElementById('langToggle');
-      window.addEventListener('scroll', () => {
-        if (hero.getBoundingClientRect().bottom < 0) {
-          nav.classList.add('visible');
-          if (langToggle) langToggle.classList.add('hidden-by-nav');
-        } else {
-          nav.classList.remove('visible');
-          if (langToggle) langToggle.classList.remove('hidden-by-nav');
-        }
-        window.scrollY > 400 ? btt.classList.add('visible') : btt.classList.remove('visible');
-      }, { passive: true });
-    }
-    function setupObserver() { }
-    function setupReveal() {
-      const revealObs = new IntersectionObserver(entries => {
-        entries.forEach(e => {
-          if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); }
-        });
-      }, { threshold: 0.12 });
-      // Observe existing .reveal elements (testimonials)
-      document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
-      // Re-observe after menu renders
-      setTimeout(() => document.querySelectorAll('.menu-card.reveal').forEach(el => revealObs.observe(el)), 400);
-    }
-    function scrollToMenu() { showCategory('bread'); }
-    function scrollToSection(id) { showCategory(id); }
-    function scrollBS(d) { document.getElementById('bsScroll').scrollBy({ left: d * 300, behavior: 'smooth' }); }
-
-    function findItem(name) {
-      closeSearch();
-      setTimeout(() => {
-        const c = document.querySelectorAll('.menu-card');
-        for (const card of c) {
-          const h = card.querySelector('.card-name-en');
-          if (h && h.textContent.toLowerCase().includes(name.toLowerCase().split(' ')[0])) {
-            const section = card.closest('.menu-section');
-            if (section) {
-              const cat = section.dataset.cat;
-              showCategory(cat);
-              setTimeout(() => {
-                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                card.style.outline = '3px solid var(--orange)';
-                setTimeout(() => { card.style.outline = ''; }, 2500);
-              }, 200);
-            }
-            return;
-          }
-        }
-      }, 300);
+    function loginAdmin() {
+      const pw = document.getElementById('adminPw').value;
+      if (pw === 'sasa2024') {
+        isAdmin = true;
+        document.body.classList.add('admin-active');
+        closeModal('adminModal');
+        showToast('تم تفعيل وضع التعديل', 'success');
+        document.getElementById('adminPw').value = '';
+      } else {
+        showToast('كلمة مرور خاطئة', 'error');
+      }
     }
 
-    // SEARCH
-    function openSearch() { document.getElementById('search-overlay').classList.add('open'); setTimeout(() => document.getElementById('searchInput').focus(), 100); }
-    function closeSearch() { document.getElementById('search-overlay').classList.remove('open'); document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = ''; }
-    function doSearch(q) {
-      const res = document.getElementById('searchResults');
-      if (!q.trim()) { res.innerHTML = ''; return; }
-      const ql = q.toLowerCase();
-      const matches = menuData.filter(i => i.nameEn.toLowerCase().includes(ql) || i.nameAr.includes(q) || (i.descEn || '').toLowerCase().includes(ql));
-      if (!matches.length) { res.innerHTML = '<p style="text-align:center;color:#aaa;padding:20px;font-size:14px"><span class="lang-ar">لا توجد نتائج</span><span class="lang-en">No results</span></p>'; return; }
-      res.innerHTML = matches.slice(0, 8).map(item => `
-    <div class="search-item" onclick="jumpTo('${item.id}')">
-      <img src="${item.img}" alt="${item.nameEn}" onerror="this.src='https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100&h=100&fit=crop'" />
-      <div class="search-item-info">
-        <h4 class="lang-en">${item.nameEn}</h4><h4 class="lang-ar">${item.nameAr}</h4>
-        <p class="lang-en">${(item.descEn || '').substring(0, 55)}…</p>
-        <p class="lang-ar">${(item.descAr || '').substring(0, 45)}…</p>
-      </div>
-      <div class="search-item-price">${item.price} SAR</div>
-    </div>`).join('');
-    }
-    function jumpTo(id) {
-      closeSearch();
-      setTimeout(() => {
-        const card = document.querySelector(`[data-item-id="${id}"]`);
-        if (card) {
-          const section = card.closest('.menu-section');
-          if (section) {
-            const cat = section.dataset.cat;
-            showCategory(cat);
-            setTimeout(() => {
-              card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              card.style.outline = '3px solid var(--orange)';
-              setTimeout(() => { card.style.outline = ''; }, 2500);
-            }, 200);
-          }
-        }
-      }, 300);
-    }
-
-    // SHARE
-    function shareMenu() {
-      if (navigator.share) { navigator.share({ title: "ساساز بيكري — sasa's Bakery", url: window.location.href }).catch(() => { }); }
-      else { navigator.clipboard.writeText(window.location.href).then(() => showToast('تم نسخ الرابط! | Link copied!', 'success')); }
-    }
-
-    // ADMIN
-    function openAdmin() { document.getElementById('admin-panel').classList.add('open'); setTimeout(() => document.getElementById('adminPw').focus(), 100); }
-    function closeAdmin() { document.getElementById('admin-panel').classList.remove('open'); document.getElementById('adminPw').value = ''; }
-    function adminLogin() {
-      if (document.getElementById('adminPw').value === 'sasa2024') { closeAdmin(); enableAdmin(); }
-      else { document.getElementById('adminPw').style.borderColor = '#E53935'; showToast('كلمة مرور خاطئة | Wrong password', 'error'); setTimeout(() => { document.getElementById('adminPw').style.borderColor = ''; }, 2000); }
-    }
-    function enableAdmin() { isAdmin = true; document.body.classList.add('admin-active'); document.getElementById('adminBar').classList.add('show'); showToast('وضع الإدارة مفعّل | Admin mode enabled', 'success'); }
-    function exitAdmin() { isAdmin = false; document.body.classList.remove('admin-active'); document.getElementById('adminBar').classList.remove('show'); }
-
-    // EDIT
-    function openEditModal(id) {
+    function openEdit(id) {
       if (!isAdmin) return;
-      const item = menuData.find(i => i.id === id); if (!item) return;
-      pendingImageData = null; // reset pending image on open
+      const item = menuData.find(i => i.id === id);
+      if (!item) return;
+
       document.getElementById('editId').value = id;
-      document.getElementById('editNameEn').value = item.nameEn;
       document.getElementById('editNameAr').value = item.nameAr;
-      document.getElementById('editDescEn').value = item.descEn || '';
+      document.getElementById('editNameEn').value = item.nameEn;
       document.getElementById('editDescAr').value = item.descAr || '';
+      document.getElementById('editDescEn').value = item.descEn || '';
       document.getElementById('editPrice').value = item.price;
       document.getElementById('editImg').value = item.img;
-      document.getElementById('editImgFile').value = '';
-      const preview = document.getElementById('edit-img-preview');
-      if (preview) { preview.src = item.img; preview.style.display = 'block'; }
-      document.getElementById('edit-modal').classList.add('open');
+
+      document.getElementById('editModal').classList.add('open');
     }
 
-    function onImgUrlChange(val) {
-      // When URL is manually typed, clear the pending upload and update preview
-      pendingImageData = null;
-      document.getElementById('editImgFile').value = '';
-      const preview = document.getElementById('edit-img-preview');
-      if (preview && val) { preview.src = val; preview.style.display = 'block'; }
-    }
-
-    function closeEditModal() {
-      document.getElementById('edit-modal').classList.remove('open');
-      pendingImageData = null;
-    }
-
-    function saveEdit() {
+    async function saveEdit() {
       const id = document.getElementById('editId').value;
+      const updates = {
+        name_ar: document.getElementById('editNameAr').value.trim(),
+        name_en: document.getElementById('editNameEn').value.trim(),
+        desc_ar: document.getElementById('editDescAr').value.trim(),
+        desc_en: document.getElementById('editDescEn').value.trim(),
+        price: parseFloat(document.getElementById('editPrice').value) || 0,
+        img: document.getElementById('editImg').value.trim()
+      };
+
+      const { error } = await db.from('menu_items').update(updates).eq('id', id);
+
+      if (error) {
+        console.error(error);
+        showToast('حدث خطأ أثناء الحفظ', 'error');
+        return;
+      }
+
+      // Update local state
       const idx = menuData.findIndex(i => i.id === id);
-      if (idx === -1) return;
-
-      // Update all text fields
-      menuData[idx].nameEn  = document.getElementById('editNameEn').value.trim();
-      menuData[idx].nameAr  = document.getElementById('editNameAr').value.trim();
-      menuData[idx].descEn  = document.getElementById('editDescEn').value.trim();
-      menuData[idx].descAr  = document.getElementById('editDescAr').value.trim();
-      menuData[idx].price   = parseFloat(document.getElementById('editPrice').value) || 0;
-
-      // Image: uploaded file takes priority; otherwise keep URL field value
-      if (pendingImageData) {
-        menuData[idx].img = pendingImageData;
-        pendingImageData = null;
-      } else {
-        const urlVal = document.getElementById('editImg').value.trim();
-        if (urlVal) menuData[idx].img = urlVal;
+      if (idx !== -1) {
+        menuData[idx].nameAr = updates.name_ar;
+        menuData[idx].nameEn = updates.name_en;
+        menuData[idx].descAr = updates.desc_ar;
+        menuData[idx].descEn = updates.desc_en;
+        menuData[idx].price = updates.price;
+        menuData[idx].img = updates.img;
       }
 
-      // *** CRITICAL: persist to localStorage ***
-      saveMenuData();
-
-      // Re-render the card in place so changes show immediately
-      const card = document.querySelector(`[data-item-id="${id}"]`);
-      if (card) {
-        const item = menuData[idx];
-        card.querySelector('.card-name-en').textContent = item.nameEn;
-        card.querySelector('.card-name-ar').textContent = item.nameAr;
-        card.querySelector('.card-desc-en').textContent = item.descEn;
-        card.querySelector('.card-desc-ar').textContent = item.descAr;
-        card.querySelector('.card-price').textContent = `${item.price} SAR`;
-        const imgEl = card.querySelector('img'); if (imgEl) imgEl.src = item.img;
-      }
-      closeEditModal();
-      showToast('تم الحفظ والتخزين! | Saved and persisted ✓', 'success');
+      closeModal('editModal');
+      renderMenu(document.querySelector('.cat-pill.active')?.textContent.includes('الكل') ? 'all' : document.querySelector('.cat-pill.active')?.dataset?.cat || 'all');
+      showToast('تم الحفظ بنجاح ✓', 'success');
     }
 
-    // TOAST
+    // Utils
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
     function showToast(msg, type = '') {
-      const t = document.createElement('div');
-      t.className = `toast${type ? ' ' + type : ''}`;
-      t.innerHTML = `<i class="ti ti-${type === 'success' ? 'check' : type === 'error' ? 'x' : 'info-circle'}"></i> ${msg}`;
-      document.getElementById('toast-container').appendChild(t);
-      setTimeout(() => t.remove(), 3500);
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = 'show';
+      setTimeout(() => toast.className = '', 3000);
     }
   </script>
 </body>
